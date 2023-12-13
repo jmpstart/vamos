@@ -1,0 +1,322 @@
+#!/bin/bash
+# ~vamos: vamos installation script (always use as: $ source ~vamos)
+#
+# Installation Sequence:
+#
+# Target:
+#   1) curl'ing a ~vamos script (stored as ./~vamos) which by sourcing performs
+#      the subsequent steps 2) to 6)
+#   2) examine PYDIR path, where python3 is installed, and to where script vamos
+#      must be stored
+#   3) downloading (curl'ing) the vamos script from github and storing at loca-
+#      tion $PYDIR/vamos
+#   4) make $PYDIR/vamos executable
+#   5) defining an alias vamos="source $PYDIR/vamos" in the current BASH envi-
+#      ronment
+#   6) deleting the install script (./~vamos)
+#
+# Example
+#     $ which python3
+#     /Library/Frameworks/Python.framework/Versions/3.11/bin/python3
+#
+#     $ echo $PYDIR
+#     /Library/Frameworks/Python.framework/Versions/3.11/bin
+#
+#     $ which vamos
+#     /Library/Frameworks/Python.framework/Versions/3.11/bin/vamos
+#
+#     $ alias vamos
+#     vamos='source /Library/Frameworks/Python.framework/Versions/3.11/bin/vamos'
+#
+# Curl'ing ~vamos from github
+#
+#    $ GITRAW=https://raw.githubusercontent.com
+#    $ CURL="curl $GITRAW/ihux/vamos/main/install"
+#    $ $CURL >~vamos; source ~vamos
+#
+# or:
+#    $ curl https://raw.githubusercontent.com/ihux/vamos/main/install >~vamos; . ~vamos
+
+_VERSION='0.1.2'
+_OK=0
+
+# ANSI color code sequence
+
+_RED='\x1b[31m'
+_GREEN='\x1b[32m'
+_BLUE='\x1b[34m'
+_YELLOW='\x1b[33m'
+_MAGENTA='\x1b[35m'
+_CYAN='\x1b[36m'
+_NEUTRAL='\x1b[0m'
+
+#===============================================================================
+# usage
+#===============================================================================
+
+if [ "$*" == "-?" ] || [ "$*" == "--help" ]; then
+    echo 'usage: ~vamos       # run installation'
+    echo '       ~vamos -k    # run installation and keep ~vamos script'
+    echo '       ~vamos -s    # run installation silent'
+    echo '       ~vamos -d    # print PYDIR path to stdout'
+    echo '       ~vamos -D    # print PYDIR path if $PYDIR/vamos is installed'
+    echo '       ~vamos -i    # install $PYDIR/vamos'
+    echo '       ~vamos -u    # uninstall $PYDIR/vamos'
+    _OK=1
+fi
+
+#===============================================================================
+# standard call (no args): run whole installation script
+#===============================================================================
+
+if [ "$*" = "" ] || [ "$*" == "-k" ] || [ "$*" == "-s" ]; then
+    #function vamos {
+    #    echo "vamos a la playa ...."
+    #    echo $*
+    #}
+
+    _PYDIR=`bash ~vamos -d`
+    alias vamos="source $_PYDIR/vamos"
+
+        # install $_PYDIR/vamos
+
+    if [ "$*" == "-s" ]; then     # silent
+        bash ~vamos -is
+    else
+        bash ~vamos -i
+    fi
+        # cleanup
+
+    unset _PYDIR
+
+    if [ "$*" != "-k" ]; then  # if no keep option
+        rm -f ~vamos
+    fi
+    _OK=1
+fi
+
+#===============================================================================
+# examine PYDIR directory path
+#===============================================================================
+
+if [ "$*" = "-d" ]; then
+    _PYDIR=`which python3`
+
+    if [ "$_PYDIR" != "" ]; then
+        _PYDIR=${_PYDIR%"/python3"}
+    fi
+
+    echo $_PYDIR
+
+    _OK=1
+    unset _PYDIR
+fi
+
+#===============================================================================
+# examine PYDIR directory path and check for installed $PYDIR/vamos
+#===============================================================================
+
+if [ "$*" = "-D" ]; then
+    _PYDIR=`which python3`
+
+    if [ "$_PYDIR" != "" ]; then
+        _PYDIR=${_PYDIR%"/python3"}
+    fi
+
+    _VAMOS=`which vamos`
+
+    if [ "$_VAMOS" == "$_PYDIR/vamos" ]; then
+        echo $_PYDIR
+    fi
+
+    _OK=1
+    unset _PYDIR
+    unset _VAMOS
+fi
+
+#===============================================================================
+# install $PYDIR/vamos
+# $ curl $GITRAW/ihux/vamos/main/install >~vamos; source ~vamos
+# $ curl -s $GITRAW/ihux/vamos/main/install >~vamos; source ~vamos
+#===============================================================================
+
+if [ "$*" = "-i" ] || [ "$*" = "-is" ]; then
+    _PYDIR=`bash ~vamos -d`
+    _ERR=0
+
+        # check if there is a viable PYDIR
+
+    if [ "$_PYDIR" == "" ]; then
+        printf $_RED
+        echo 'error `~vamos -i`: did not find executable python3'
+        echo '- focus first on a working python3 installation'
+        echo '- check working python3 installation with `$ python3 --version`'
+        printf $_NEUTRAL
+        _ERR=1
+    fi
+
+        # install vamos in PYDIR
+
+    if [ "$_ERR" == 0 ]; then
+        if [ "$*" != "-is" ]; then
+            printf $_CYAN
+            echo "installing vamos in $_PYDIR ..."
+            printf $_NEUTRAL
+        fi
+
+        _GITRAW=https://raw.githubusercontent.com
+        _REPO=ihux/vamos
+        _URL=$_GITRAW/$_REPO/main/vamos
+        _TARGET=$_PYDIR/vamos
+
+        if [ "$*" != "-is" ]; then
+            printf $_YELLOW
+            echo "installing vamos in $_PYDIR ..."
+            printf $_NEUTRAL
+        fi
+
+           # actual installation
+
+        if [ "$*" != "-is" ]; then
+            printf $_YELLOW
+            echo "curl $_URL >$_TARGET"
+            printf $_NEUTRAL
+        fi
+
+        if [ "$*" != "-is" ]; then
+            curl $_URL >$_TARGET || _ERR=1
+        else
+            curl -s $_URL >$_TARGET || _ERR=1
+        fi
+    fi
+
+        # make executable
+
+    if [ "$_ERR" == 0 ]; then
+        if [ "$*" != "-is" ]; then
+            printf $_YELLOW
+            echo "chmod +x $_TARGET"
+            printf $_NEUTRAL
+        fi
+
+        chmod +x $_TARGET || _ERR=1
+    fi
+
+        # verification
+
+    if [ "$_ERR" == 0 ]; then
+        _VERIFY=`vamos --version`
+        _MORE='(check with `vamos --version`)'
+
+        if [ "$_VERIFY" == "$_VERSION" ]; then
+            printf $_GREEN
+            echo "vamos (version $_VERSION) successfully installed "$_MORE
+            printf $_NEUTRAL
+
+        else
+            printf $_RED
+            echo 'error: final check for vamos installation failed'
+            echo 'expected `vamos --version` to return '"$_VERSION"
+            printf $_NEUTRAL
+            _ERR=1
+        fi
+
+        unset _VERIFY
+        unset _MORE
+    fi
+
+
+    unset _PYDIR
+    unset _GITRAW
+    unset _REPO
+    unset _URL
+    unset _TARGET
+    unset _ERR
+    _OK=1
+fi
+
+#===============================================================================
+# uninstall $PYDIR/vamos
+#===============================================================================
+
+if [ "$*" = "-u" ] || [ "$*" = "-us" ] || [ "$*" = "-uk" ]; then
+    _PYDIR=`bash ~vamos -D`
+    _TARGET=$_PYDIR/vamos
+    _ERR=0
+        # check if there is a viable PYDIR
+
+    if [ "$_PYDIR" == "" ]; then
+        printf $_RED
+        echo 'error `~vamos -u`: unable to identify executable vamos installation'
+        echo '- script vamos expected to be in system python3 directory'
+        echo '- try manual delete of $PYDIR/vamos script'
+        printf $_NEUTRAL
+        _ERR=1
+    fi
+
+        # uninstall vamos in PYDIR
+
+    if [ "$_ERR" == 0 ]; then
+        if [ "$*" != "-us" ]; then
+            printf $_CYAN
+            echo "uninstalling $_TARGET ..."
+            printf $_NEUTRAL
+        fi
+
+           # actual uninstallation
+
+        printf $_YELLOW
+        echo "rm $_TARGET" || _ERR=1
+        printf $_NEUTRAL
+
+        rm  $_TARGET
+
+        _CHECK=`bash ~vamos -D`
+        if [ "$_CHECK" != "" ]; then
+            printf $_RED
+            echo "error ~vamos -u: uninstallation of vamos failed" || _ERR=1
+            echo '=> consider manual delete of $PYBIN/vamos'
+            printf $_NEUTRAL
+        else
+            if [ "$*" != "-us" ]; then
+                printf $_GREEN
+                echo "successful removal of $_TARGET"
+                printf $_NEUTRAL
+            fi
+        fi
+    fi
+
+    if [ "$*" != "-uk" ]; then  # if no keep option
+        rm -f ~vamos
+    fi
+
+    unset _PYDIR
+    unset _TARGET
+    unset _ERR
+    unset _CHECK
+    _OK=1
+fi
+
+#===============================================================================
+# cleanup
+# - since this script is sourced all temporary variables have to be unset
+# - otherwise they would be left as garbage in the calling shell
+#===============================================================================
+
+if [ $_OK == 0 ]; then
+    printf $_RED
+    echo "error - bad calling syntax: ~vamos $*"
+    printf $_NEUTRAL
+    bash ~vamos -?
+fi
+
+unset _VERSION
+unset _OK
+
+unset _RED
+unset _GREEN
+unset _BLUE
+unset _YELLOW
+unset _MAGENTA
+unset _CYAN
+unset _NEUTRAL

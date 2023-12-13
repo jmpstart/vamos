@@ -1,0 +1,158 @@
+#!/bin/bash
+# vamos: setup playground
+#
+# remarks: this script is intended to be `sourced`!
+# => thus do not use `exit` in this script
+
+_NAME='vamos'
+_VERSION='0.1.2'
+
+# ANSI color code sequence
+
+_RED='\x1b[31m'
+_GREEN='\x1b[32m'
+_BLUE='\x1b[34m'
+_YELLOW='\x1b[33m'
+_MAGENTA='\x1b[35m'
+_CYAN='\x1b[36m'
+_NEUTRAL='\x1b[0m'
+
+#===============================================================================
+# usage: $ . vamos -?
+#===============================================================================
+
+if [ "$*" == "-?" ] || [ "$*" == "--help" ]; then
+    echo "usage: . $_NAME                  # setup playground"
+    echo "       . $_NAME -?               # show usage"
+    echo "       . $_NAME --help           # show comprehensive help"
+    echo "       . $_NAME --version        # show comprehensive help"
+    echo ""
+    echo "       . $_NAME https://github.com/vamos/sample-playground.git"
+    echo "       . $_NAME @vamos/sample-playground"
+    echo ""
+    echo "       . $_NAME -u               # uninstall $_NAME"
+    echo ""
+    echo "note: script $_NAME always needs to be SOURCED, either using"
+    echo '      `$ . vamos ...` syntax or `$ source vamos`'
+fi
+
+#===============================================================================
+# default call: $ . vamos
+# - either: activates virtual environment if `venv` folder exists
+# - or: create non-existing virtual  environment with subsequent activation
+#===============================================================================
+
+if [ "$*" == "" ]; then
+    #source .vamos/bin/alias.sh
+
+    if [ -d venv ]; then
+      source venv/bin/activate
+      #bash local/bin/ec -g '  type ? for local help'
+    else
+      #bash .vamos/bin/ec -c '  creating virtual environment ...'
+      #bash .vamos/bin/ec -y 'python3 -m venv venv'
+      python3 -m venv venv
+      source vamos
+    fi
+fi
+
+#===============================================================================
+# standard call: . vamos myplayground/three-samples
+# - argument needs to contain at least one slash
+#===============================================================================
+
+if [ "$*" != "" ]; then
+    _SLASH=0
+    echo $1 | grep '/' >/dev/null && _SLASH=1
+
+    if [ $_SLASH == 1 ]; then   # default
+
+            # figure out whether arg $1 has short form `myplayground/sample`
+            # or long form `https://github.com/myplayground/sample.git`
+
+        _LONG=0
+        echo $* | grep https://github.com/ >/dev/null && _LONG=1
+
+            # clone repository - deal with both short and long form
+            # of repository URL
+
+        if [ "$_LONG" == "1" ]; then   # long repo URL
+            #echo 'https://github.com prefix'
+            _URL="$*";  #_URL=${_URL#"@"}
+            _REPO=${_URL#*/}
+            printf $_YELLOW
+            echo "git clone $_URL"
+            printf $_NEUTRAL
+            git clone $_URL
+        else                            # short repo URL
+            _TAG="$*";
+            _TAG=${_TAG#"@"}        # remove leading '@'
+            _REPO=${_TAG#*/}
+
+            _URL=https://github.com/"$_TAG.git"
+            #echo 'no https://github.com prefix'
+            printf $_YELLOW
+            echo "git clone $_URL"
+            printf $_NEUTRAL
+            git clone $_URL
+        fi
+
+        printf $_YELLOW
+        echo cd $_REPO
+        printf $_NEUTRAL
+        cd $_REPO
+
+        if [ -f .vamos/bin/startup ]; then
+            printf $_YELLOW
+            echo 'source .vamos/bin/startup'
+            printf $_NEUTRAL
+            source .vamos/bin/startup ''
+        else
+            printf $_RED
+            echo 'error: cannot find .vamos/bin/startup script'
+            printf $_NEUTRAL
+        fi
+
+        unset _LONG
+        unset _URL
+        unset _REPO
+        unset _TAG
+    fi
+
+    unset _SLASH
+fi
+
+#===============================================================================
+# print version: $ . vamos --version
+#===============================================================================
+
+if [ "$*" == "--version" ]; then
+   echo $_VERSION
+fi
+
+#===============================================================================
+# uninstall: $ . vamos -u
+#===============================================================================
+
+if [ "$*" == "-u" ] || [ "$*" == "--uninstall" ]; then
+    _URL=https://raw.githubusercontent.com/ihux/vamos/main/install
+    curl -s $_URL >~vamos; . ~vamos -u
+    unset _URL
+fi
+
+#===============================================================================
+# cleanup
+# - since this script is sourced all temporary variables have to be unset
+# - otherwise they would be left as garbage in the calling shell
+#===============================================================================
+
+unset _NAME
+unset _VERSION
+
+unset _RED
+unset _GREEN
+unset _BLUE
+unset _YELLOW
+unset _MAGENTA
+unset _CYAN
+unset _NEUTRAL

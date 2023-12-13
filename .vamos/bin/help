@@ -1,0 +1,22 @@
+#!/bin/bash
+# hlp: local help
+
+  ec -g 'to access local utilities'
+  echo  '  . go          # ´dot-go´ (to access local utilities)'
+  echo  ''
+  ec -g 'help on local utilities in this repo (see alias and local/bin)'
+  echo  '  ec            # echo colored text'
+  echo  '  id            # launch python idle app'
+  echo  '  jl            # launch jupyter lab'
+  echo  '  de            # deactivate virtual environment'
+  echo  '  ve            # activate virtual environment'
+  echo  '  po            # poetry test/build/install'
+  echo  ''
+  ec -g 'help on standard tools'
+  echo  '  make          # GNU make utility'
+  echo  '  jupyter lab   # launch jupyter lab'
+  echo  '  pip           # python package installer'
+  echo  '  python        # launch python interpreter'
+  echo  '  poetry        # python package manager'
+  echo  ''
+  echo  'try these commands with -? or --help option to get additional help'

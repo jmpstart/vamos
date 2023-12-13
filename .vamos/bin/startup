@@ -1,0 +1,106 @@
+#!/bin/bash
+# startup: startup a playground
+# - create virtual Python environment if non existing
+# - activate virtual Python environment
+# - upgrade pip to latest version
+# - setup some aliases
+#
+# note: this script needs to be sourced in order to enable modification/creation
+#       of environment settings or alias in current shell
+
+#===============================================================================
+# usage: $ source startup -?
+#        $ source startup --help
+#===============================================================================
+
+if [ "$*" == "-?" ] || [ "$*" == "--help" ]; then
+    echo "usage: source startup            # startup a playground"
+    echo "       source startup -?         # print usage/help info"
+    echo "       source startup --help     # print usage/help info"
+    echo "       source startup -a         # setup aliases"
+    echo "       source startup -u         # install untilities in venv folder"
+    echo ""
+    echo "setting up a playground:"
+    echo "- create virtual Python environment if not exists"
+    echo "- activate virtual Python environment"
+    echo "- upgrade pip to latest version"
+    echo "- setup some aliases"
+fi
+
+#===============================================================================
+# setup aliases
+#===============================================================================
+
+if [ "$*" == "-a" ]; then
+  alias de=deactivate
+  alias ve="source `pwd`/venv/bin/activate"
+  alias ?="bash `pwd`/.vamos/bin/help"
+  alias primes='echo 2 3 5 7 11 13 17 ...'
+  alias lol='echo hahaha hahaha hahahhaha'
+fi
+
+#===============================================================================
+# install utilities
+#===============================================================================
+
+if [ "$1" == "-u" ]; then
+    if [ ! -d venv/bin ]; then
+        printf $"\x1b[31m"
+        echo 'error: cannot find .vamos/bin/startup script'
+        printf $"\x1b[0m"
+        exit 1
+    fi
+
+    if [ "$2" != "" ]; then
+        echo "  install $2 in venv/bin"
+        cp .vamos/bin/$2  venv/bin/ || exit 1
+        chmod +x venv/bin/$2 || exit 1
+        exit 0
+    fi
+
+        # copy utilities
+
+    bash .vamos/bin/startup -u lol
+    bash .vamos/bin/startup -u primes
+    bash .vamos/bin/startup -u fibo
+fi
+
+#===============================================================================
+# setup playground
+#===============================================================================
+
+if [ "$*" == "" ]; then
+    if [ ! -d venv ]; then
+        printf "\x1b[36m"  # cyan
+        echo 'creating virtual environment ...'
+        printf "\x1b[33m"  # yellow
+        echo 'python3 -m venv venv'
+        printf "\x1b[0m"   # neutral
+
+        python3 -m venv venv
+
+        printf "\x1b[33m"  # yellow
+        echo 'pip install --upgrade pip'
+        printf "\x1b[0m"   # neutral
+        pip install --upgrade pip
+
+        printf "\x1b[33m"  # yellow
+        echo 'bash .vamos/bin/startup -u'
+        printf "\x1b[0m"   # neutral
+        bash .vamos/bin/startup -u
+    fi
+
+        # activate virtual Python environment
+
+    source venv/bin/activate
+
+        # setup aliases
+
+    source .vamos/bin/startup -a  # setup aliases
+
+        # print help hint
+
+    printf "\x1b[32m"  # green
+    echo 'hint: type ? for playground specific help'
+    printf "\x1b[0m"   # neutral
+fi
