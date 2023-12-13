@@ -1,4 +1,4 @@
-![Vamos](https://github.com/bluccino/vamos-develop/assets/17394277/dc16822f-9b99-4e0c-b287-564377a23f3e)
+![Vamos](h.vamos/image/vamos-a-la-playa.jpg)
 
 # Vamos
 
