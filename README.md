@@ -16,18 +16,18 @@ samples. Here's how a novice user gets running with
 a one-liner using `vamos`:  
 
 ```
-     $ vamos @jmpstart/three-samples  # let's go ...
-     Three Samples (type `$ ?` or `$ help for more info)
+     $ vamos @jmpstart/toy-samples  # let's go ...
+     Playground Toy Samples: (type `$ ?` or `$ help for more info)
          fibo:   print 1st ten fibonacchi numbers
          primes: print 1st ten prime   numbers  
          lol:    laugh out loud
      (venv) $
 ```
 
-With invocation of this command line `vamos` performs the following actions:
+If a user invokes this command line, `vamos` performs the following actions:
 
-* download repository https://github.com/myhub/three-samples.git
-* change working directory to repository root `./three-samples` and activate
+* download repository https://github.com/myhub/toy-samples.git
+* change working directory to repository root `./toy-samples` and activate
   virtual python environment
 * print some `playground quickstart help` about how to run installed
   samples/utilities
@@ -91,7 +91,7 @@ installing `vamos`.
 To install `vamos` enxecute the following `curl` command:
 
 ```
-   $ curl https://raw.githubusercontent.com/ihux/vamos/main/install >~vamos; . ~vamos -s
+   $ curl https://raw.githubusercontent.com/jmpstart/vamos/main/install >~vamos; . ~vamos -s
 ```
 
 This installs a `vamos` (BASH) script in the python3 system
