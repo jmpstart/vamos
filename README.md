@@ -11,12 +11,12 @@ simple manner as we are used from installing a smartphone app?
 
 With an installed `vamos` environment (see below, how to install in a few
 seconds) assume a git
-repository https://github.com/myhub/three-samples.git hosting three demo
+repository https://github.com/jmpstart/three-samples.git hosting three demo
 samples. Here's how a novice user gets running with
 a one-liner using `vamos`:  
 
 ```
-     $ vamos @myhub/three-samples  # let's go ...
+     $ vamos @jmpstart/three-samples  # let's go ...
      Three Samples (type `$ ?` or `$ help for more info)
          fibo:   print 1st ten fibonacchi numbers
          primes: print 1st ten prime   numbers  
