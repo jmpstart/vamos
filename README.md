@@ -1,4 +1,4 @@
-![Vamos](h.vamos/image/vamos-a-la-playa.jpg)
+![Vamos](./.vamos/image/vamos-a-la-playa.jpg)
 
 # Vamos
 
