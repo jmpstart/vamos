@@ -11,7 +11,7 @@ simple manner as we are used from installing a smartphone app?
 
 With an installed `vamos` environment (see below, how to install in a few
 seconds) assume a git
-repository https://github.com/jmpstart/three-samples.git hosting three demo
+repository https://github.com/jmpstart/toy-samples.git hosting three demo
 samples. Here's how a novice user gets running with
 a one-liner using `vamos`:  
 
