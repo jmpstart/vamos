@@ -1,0 +1,14 @@
+#!python3
+"""
+scan: print BLE devices in vicinity
+"""
+
+text = """
+scan devices ...
+   8570AC27-4992-7D89-88C1-5C5BCAC07247: None
+   7483473F-2962-4927-619E-BDF4628C8930: None
+   AF5BD257-F282-9448-037C-DD17E1C16DCB: None
+   8E10B2B0-0EDB-1B2C-930C-53513C790A01: Azzurro
+"""
+
+print(text)

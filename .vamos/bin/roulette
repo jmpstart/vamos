@@ -1,0 +1,7 @@
+#!python3
+"""
+roulette: simple Python script to print random number 0 <= n <= 36
+"""
+
+import numpy
+print(np.random.randint(37))

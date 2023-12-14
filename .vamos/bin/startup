@@ -60,9 +60,10 @@ if [ "$1" == "-u" ]; then
 
         # copy utilities
 
-    bash .vamos/bin/startup -u lol
-    bash .vamos/bin/startup -u primes
-    bash .vamos/bin/startup -u fibo
+    bash .vamos/bin/startup -u ec
+    bash .vamos/bin/startup -u roulette
+    bash .vamos/bin/startup -u scan
+    bash .vamos/bin/startup -u help
 fi
 
 #===============================================================================
