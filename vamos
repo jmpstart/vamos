@@ -150,7 +150,7 @@ if [ "$*" == "-u" ] || [ "$*" == "--uninstall" ]; then
 
     if [ "$_ERR" == "0" ]; then
         printf $_GREEN
-        echo 'succesful uninstallation of `vamos`'
+        echo 'vamos (version $_VERSION) succesfully uninstalled'
         printf $_NEUTRAL
     fi
 
