@@ -5,7 +5,7 @@
 # => thus do not use `exit` in this script
 
 _NAME='vamos'
-_VERSION='0.1.2'
+_VERSION='E.1.2'
 
 # ANSI color code sequence
 
@@ -15,26 +15,138 @@ _BLUE='\x1b[34m'
 _YELLOW='\x1b[33m'
 _MAGENTA='\x1b[35m'
 _CYAN='\x1b[36m'
-_NEUTRAL='\x1b[0m'
+_NORMAL='\x1b[0m'
+
+_OK=0
+
+#===============================================================================
+# default call: `$ vamos` => setup alias in sourced mode or generate error
+# - if the script is not sourced an error message is generated as this calling
+#   syntax can only setup an alias if it is sourced.
+#
+# So we need to check whether this script is sourced:
+# - use: (return 0 2>/dev/null) && _SOURCED=1 || _SOURCED=0
+# - Bash allows return statements only from functions and, in a script's top-
+#   level scope, only if the script is sourced.
+# - if return is used in the top-level scope of a non-sourced script, an error
+#   message is emitted, and the exit code is set to 1.
+# - (return 0 2>/dev/null) executes return in a subshell and suppresses the
+#   error message
+# - afterwards the exit code indicates whether the script was sourced (0) or
+#   not (1), which is used with the && and || operators to set the _SOURCED
+#   variable accordingly.
+# - use of a subshell is necessary, because executing return in the top-level
+#   scope of a sourced script would exit the script
+#===============================================================================
+
+if [ "$*" == "" ]; then
+    (return 0 2>/dev/null) && _SOURCED=1 || _SOURCED=0  # determine _SOURCED
+
+    if [ "$_SOURCED" == 0 ]; then
+        printf $_RED
+        printf 'error: vamos not initialized'
+        printf $_NORMAL
+        printf ' => init with `'
+        printf $_GREEN
+        printf '. vamos'
+        printf $_NORMAL
+        echo '` (dot-space-vamos)'
+    else
+        alias vamos="source vamos -!"
+    fi
+    _OK=1
+    unset _SOURCED
+fi
+
+#===============================================================================
+# activate virtual environment: `$ vamos -!`
+#===============================================================================
+
+if [ "$*" == "-!" ]; then
+    source $_NAME -a   # activate virtual playground
+    _OK=1
+fi
+
+#===============================================================================
+# remove -! option if provided by alias
+#===============================================================================
+
+if [ "$1" == "-!" ]; then
+    shift  # removes arg1 and shifts other args left
+fi
 
 #===============================================================================
 # usage: $ . vamos -?
 #===============================================================================
 
 if [ "$*" == "-?" ] || [ "$*" == "--help" ]; then
+    printf $_GREEN
     echo "vamos (version $_VERSION)"
-    echo "usage: . $_NAME                  # setup playground"
-    echo "       . $_NAME -?               # show usage"
-    echo "       . $_NAME --help           # show comprehensive help"
-    echo "       . $_NAME --version        # show comprehensive help"
+    printf $_NORMAL
+    echo "usage: . $_NAME             # BASH session init: setup $_NAME alias"
+    echo "       $_NAME               # setup/activate playground"
     echo ""
-    echo "       . $_NAME https://github.com/jmpstart/toy-samples.git"
-    echo "       . $_NAME @jmpstart/toy-samples"
+    echo "       $_NAME @jmpstart/toy-samples"
+    echo "       $_NAME https://github.com/jmpstart/toy-samples.git"
     echo ""
-    echo "       . $_NAME -u               # uninstall $_NAME"
+    echo "       $_NAME -?            # show usage"
+    echo "       $_NAME --help        # show comprehensive help"
+    echo "       $_NAME --version     # print version"
     echo ""
-    echo "note: script $_NAME always needs to be SOURCED, either using"
-    echo '      `$ . vamos ...` syntax or `$ source vamos`'
+    echo "helpers:"
+    echo ""
+    echo "       $_NAME -a            # activate virtual playground"
+    echo "       $_NAME -c            # create virtual Python environment"
+    echo "       $_NAME -d            # deactivate virtual playground"
+    echo "       $_NAME -f            # find playground root directory"
+    echo "       $_NAME -g repo file  # curl from github"
+    echo "       $_NAME -d            # deactivate virtual playground"
+    echo "       $_NAME -u            # uninstall $_NAME"
+    echo ""
+    _OK=1
+fi
+
+#===============================================================================
+# activate virtual environment
+#===============================================================================
+
+if [ "$*" == "-a" ]; then
+    if  [ -d venv ]; then
+        source venv/bin/activate
+    elif [ -d .venv ]; then
+        source .venv/bin/activate
+    else
+        _DONE=0
+        _ITEMS=`ls -a`
+        for _ITEM in $_ITEMS; do
+            if [ "$_ITEM" != "." ] && [ "$_ITEM" != ".." ] && [ "$_DONE" == 0 ]
+            then
+                if [ -d "$_ITEM" ]; then
+                    #echo dir $_FILE
+                    _FILE="$_ITEM/bin/activate"
+                    if [ -f "$_FILE" ]; then
+                        #echo "source $_FILE"
+                        source $_FILE
+                        _DONE=1
+	                  fi
+                fi
+            fi
+        done
+
+        unset _ITEMS
+        unset _ITEM
+        unset _DONE
+    fi
+    _OK=1
+fi
+
+#===============================================================================
+# deactivate virtual environment
+#===============================================================================
+
+if [ "$*" == "-d" ]; then
+    deactivate 2>/dev/null
+    _OK=1
 fi
 
 #===============================================================================
@@ -43,7 +155,7 @@ fi
 # - or: create non-existing virtual  environment with subsequent activation
 #===============================================================================
 
-if [ "$*" == "" ]; then
+if [ "$*" == "@@@" ]; then
     #source .vamos/bin/alias.sh
 
     if [ -d venv ]; then
@@ -83,7 +195,7 @@ if [ "$*" != "" ]; then
             _REPO=${_URL#*/}
             printf $_YELLOW
             echo "git clone $_URL"
-            printf $_NEUTRAL
+            printf $_NORMAL
             git clone $_URL
         else                            # short repo URL
             _TAG="$*";
@@ -94,24 +206,24 @@ if [ "$*" != "" ]; then
             #echo 'no https://github.com prefix'
             printf $_YELLOW
             echo "git clone $_URL"
-            printf $_NEUTRAL
+            printf $_NORMAL
             git clone $_URL
         fi
 
         printf $_YELLOW
         echo cd $_REPO
-        printf $_NEUTRAL
+        printf $_NORMAL
         cd $_REPO
 
         if [ -f .vamos/bin/startup ]; then
             printf $_YELLOW
             echo 'source .vamos/bin/startup'
-            printf $_NEUTRAL
+            printf $_NORMAL
             source .vamos/bin/startup ''
         else
             printf $_RED
             echo 'error: cannot find .vamos/bin/startup script'
-            printf $_NEUTRAL
+            printf $_NORMAL
         fi
 
         unset _LONG
@@ -121,6 +233,21 @@ if [ "$*" != "" ]; then
     fi
 
     unset _SLASH
+fi
+
+#===============================================================================
+# create virtual Python environment (folder venv)
+# - option -c! indicates that the caller launched us as a child process
+#===============================================================================
+
+if [ "$*" == "-c" ] || [ "$*" == "-c!" ]; then
+    if [ "$1" != "-c!" ]; then  # not sure that we run in a child process
+        bash $_NAME -c!         # run as a child process, call with -c! option
+    else                        # else part runs as child process
+        deactivate 2>/dev/null  # does not deactivate venv of parent process
+        python3 -m venv venv    # create virtual Python environment
+    fi
+    _OK=1
 fi
 
 #===============================================================================
@@ -152,7 +279,7 @@ if [ "$*" == "-u" ] || [ "$*" == "--uninstall" ]; then
     if [ "$_ERR" == "0" ]; then
         printf $_GREEN
         echo 'vamos (version $_VERSION) succesfully uninstalled'
-        printf $_NEUTRAL
+        printf $_NORMAL
     fi
 
     unset _APP
@@ -160,10 +287,40 @@ if [ "$*" == "-u" ] || [ "$*" == "--uninstall" ]; then
  fi
 
 #===============================================================================
+# print vamos target directory
+# - with option -t we are not sure wheter running in child or parent process
+# - option -t! indicates that the caller launched us as a child process
+#===============================================================================
+
+if [ "$*" == "-t" ] || [ "$*" == "-t!" ]; then
+    if [ "$1" != "-t!" ]; then  # not sure that we run in a child process
+        bash $_NAME -t!         # run as a child process, call with -t! option
+    else  # in the else part we run in a child process
+        deactivate 2>/dev/null  # deactivate in child but not parent process
+        _PYDIR=`which python3`
+
+        if [ "$_PYDIR" != "" ]; then
+            _PYDIR=${_PYDIR%"/python3"}
+        fi
+
+        echo $_PYDIR
+        unset _PYDIR
+    fi
+    _OK=1
+fi
+
+#===============================================================================
 # cleanup
 # - since this script is sourced all temporary variables have to be unset
 # - otherwise they would be left as garbage in the calling shell
 #===============================================================================
+
+if [ "$_OK" == "0" ]; then
+    printf $_RED
+    echo "error: bad calling syntax: vamos $*"
+    printf $_NORMAL
+    bash vamos -?
+fi
 
 unset _NAME
 unset _VERSION
@@ -174,4 +331,6 @@ unset _BLUE
 unset _YELLOW
 unset _MAGENTA
 unset _CYAN
-unset _NEUTRAL
+unset _NORMAL
+
+unset _OK
