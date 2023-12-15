@@ -38,7 +38,7 @@
 #    $ curl https://raw.githubusercontent.com/ihux/vamos/main/install >~vamos; . ~vamos
 
 _VERSION='0.1.2'
-_OK=0
+_REPO=jmpstart/vamos
 
 # ANSI color code sequence
 
@@ -49,6 +49,8 @@ _YELLOW='\x1b[33m'
 _MAGENTA='\x1b[35m'
 _CYAN='\x1b[36m'
 _NEUTRAL='\x1b[0m'
+
+_OK=0
 
 #===============================================================================
 # usage
@@ -167,7 +169,6 @@ if [ "$*" = "-i" ] || [ "$*" = "-is" ]; then
         fi
 
         _GITRAW=https://raw.githubusercontent.com
-        _REPO=ihux/vamos
         _URL=$_GITRAW/$_REPO/main/vamos
         _TARGET=$_PYDIR/vamos
 
@@ -230,7 +231,6 @@ if [ "$*" = "-i" ] || [ "$*" = "-is" ]; then
 
     unset _PYDIR
     unset _GITRAW
-    unset _REPO
     unset _URL
     unset _TARGET
     unset _ERR
@@ -313,6 +313,7 @@ if [ $_OK == 0 ]; then
 fi
 
 unset _VERSION
+unset _REPO
 unset _OK
 
 unset _RED
