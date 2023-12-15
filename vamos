@@ -143,13 +143,15 @@ if [ "$*" == "-u" ] || [ "$*" == "--uninstall" ]; then
     _ERR=0
 
     if [ -f ./~vamos ]; then
-        rm ./~vamos 2>/dev/null
+        rm ./~vamos 2>/dev/null || _ERR=1
     fi
-    
-    rm $_APP || _ERR=1
+
+    rm $_APP || _ERR=2
 
     if [ "$_ERR" == "0" ]; then
+        printf $_GREEN
         echo 'succesful uninstallation of `vamos`'
+        printf $_NEUTRAL
     fi
 
     unset _APP
