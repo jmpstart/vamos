@@ -6,7 +6,7 @@ In a BASH shell with installed `git`, `curl` and `System Python 3` environment e
 one-liner to quick install `vamos`
 
 ```
-   $ curl https://raw.githubusercontent.com/jmpstart/vamos/main/install >~vamos; source ~vamos -s
+    curl https://raw.githubusercontent.com/jmpstart/vamos/main/install >~vamos; source ~vamos -s
 ```
 
 and check for a successful installation message, otherwise follow the troublehooting
