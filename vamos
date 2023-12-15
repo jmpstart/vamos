@@ -22,6 +22,7 @@ _NEUTRAL='\x1b[0m'
 #===============================================================================
 
 if [ "$*" == "-?" ] || [ "$*" == "--help" ]; then
+    echo "vamos (version $_VERSION)"
     echo "usage: . $_NAME                  # setup playground"
     echo "       . $_NAME -?               # show usage"
     echo "       . $_NAME --help           # show comprehensive help"
