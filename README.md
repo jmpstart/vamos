@@ -1,19 +1,31 @@
 ![Vamos](./.vamos/image/vamos-a-la-playa.jpg)
 
-# Vamos
+# Curl Installation Formula
+
+In a BASH shell with installed `git`, `curl` and `System Python 3` environment execute the following
+one-liner to quick install `vamos`
+
+```
+   $ curl https://raw.githubusercontent.com/jmpstart/vamos/main/install >~vamos; source ~vamos -s
+```
+
+and check for a successful installation message, otherwise follow the troublehooting
+in the appendix.
+
+----------------------------------------------------------------------------------------------
+
+# Vamos - A Playground Managing Tool
 
 Can we download a repository from git hub and setup a playground in a similar
-simple manner as we are used from installing a smartphone app?
+simple manner as we are used from installing a smartphone app? Yes we can!
 
 ```
-    Let's go, vamos a la play(a)
+    Let's go, vamos a la play(a)|ground
 ```
 
-With an installed `vamos` environment (see below, how to install in a few
-seconds) assume a git
-repository https://github.com/jmpstart/toy-samples.git hosting three demo
-samples. Here's how a novice user gets running with
-a one-liner using `vamos`:  
+With installed `git`, `python3` and `vamos` environment (see appendix/troubleshooting if you miss one of them)
+assume a git repository https://github.com/jmpstart/toy-samples.git hosting a `vamos` playground with three demo
+samples. Here's how to clone/activate such playground with a one-liner using `vamos`:  
 
 ```
      $ vamos @jmpstart/toy-samples  # let's go ...
@@ -24,7 +36,12 @@ a one-liner using `vamos`:
      (venv) $
 ```
 
-If a user invokes this command line, `vamos` performs the following actions:
+Once cloned and installed on your computer the `vamos` playground is hosted in avirtual Python environment
+which is activated, whenvever ever command `. vamos` is invoked somewhere in the file tree of the playground's
+git repository. 
+
+
+If a user invokes command `$ vamos @jmpstart/toy-samples` the following actions are performed:
 
 * download repository https://github.com/myhub/toy-samples.git
 * change working directory to repository root `./toy-samples` and activate
@@ -176,3 +193,7 @@ To install `vamos` enxecute the following `curl` command:
 
 This installs a `vamos` (BASH) script in the directory where system python3 binaries
 are located.
+
+# Appendix - Troubleshooting
+
+... to be done
