@@ -135,10 +135,22 @@ fi
 #===============================================================================
 
 if [ "$*" == "-u" ] || [ "$*" == "--uninstall" ]; then
-    _URL=https://raw.githubusercontent.com/ihux/vamos/main/install
-    curl -s $_URL >~vamos; . ~vamos -u
-    unset _URL
-fi
+    #_URL=https://raw.githubusercontent.com/ihux/vamos/main/install
+    #curl -s $_URL >~vamos; . ~vamos -u
+    #unset _URL
+
+    _APP=`which vamos`
+    _ERR=0
+
+    rm $_APP || _ERR=1
+
+    if [ "$_ERR" == "0" ]; then
+        echo 'succesful uninstallation of `vamos`'
+    fi
+
+    unset _APP
+    unset _ERR
+ fi
 
 #===============================================================================
 # cleanup
