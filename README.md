@@ -75,9 +75,10 @@ following tasks:
 
 # How Vamos Works
 
-`vamos` operates on the basis of data stored in a directory `.vamos`, containing
+`vamos` operates on the basis a local directory `.vamos`, containing
 blueprints and stuff to be copied to a virtual Python environment folder. Usually
-the `.vamos` directory is located next to the `.git` directory of a `git` repository.
+(but not mandatory) the `.vamos` directory is located next to the `.git` directory of 
+a `git` repository.
 
 `vamos` is able to identify virtual Python environment directories, which have usually
 names like `venv`or `.venv` (but can have any name), for which we use the generic
@@ -140,24 +141,16 @@ invokes `source vamos` such that an additional sourcing is not required for an o
 stuff to be copied) and no virtual Python environment directory exists in the
 current directory, it automatically creates a virtual Python environment.
 
-3) If `vamos` finds a virtual Python environment directory (e.g., `venv`, `.venv`,
+2) If `vamos` finds a virtual Python environment directory (e.g., `venv`, `.venv`,
 or other name) in the current directory which is not activated, it activates it.
 This implies, that a different activated virtual environment will implicitely be
 deactivated before. This works only if `vamos`
 has beens launched with `source vamos` (or equivalently `. vamos`).
 
-4) If `vamos` detects an activated virtual Python environment with the stuff in
+3) If `vamos` detects an activated virtual Python environment with the stuff in
 `.vamos` not copied to the virtual Python environment folder, it copies that
 stuff and, if provided, executes script `.vamos/bin/setup` to setup the playground
 with proper actions.
-
-With this generic algorithm   
-
-, it automatically creates
-a virtual Python environment and copies the contents of each subdirectory found
-in `.vamos` to the  
-Vamos utilizes virtual Python environments to install additional BASH and Python
-scripts which serve as utilities for a playground. In addition  
 
 
 # Installing Vamos
@@ -181,4 +174,5 @@ To install `vamos` enxecute the following `curl` command:
    $ curl https://raw.githubusercontent.com/jmpstart/vamos/main/install >~vamos; . ~vamos -s
 ```
 
-This installs a `vamos` (BASH) script in the python3 system
+This installs a `vamos` (BASH) script in the directory where system python3 binaries
+are located.
