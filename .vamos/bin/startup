@@ -18,7 +18,7 @@ if [ "$*" == "-?" ] || [ "$*" == "--help" ]; then
     echo "       source startup -?         # print usage/help info"
     echo "       source startup --help     # print usage/help info"
     echo "       source startup -a         # setup aliases"
-    echo "       source startup -u         # install untilities in venv folder"
+    echo "       source startup -i         # install untilities in venv folder"
     echo ""
     echo "setting up a playground:"
     echo "- create virtual Python environment if not exists"
@@ -43,7 +43,7 @@ fi
 # install utilities
 #===============================================================================
 
-if [ "$1" == "-u" ]; then
+if [ "$1" == "-i" ]; then
     if [ ! -d venv/bin ]; then
         printf $"\x1b[31m"
         echo 'error: cannot find .vamos/bin/startup script'
@@ -60,10 +60,9 @@ if [ "$1" == "-u" ]; then
 
         # copy utilities
 
-    bash .vamos/bin/startup -u ec
-    bash .vamos/bin/startup -u roulette
-    bash .vamos/bin/startup -u scan
-    bash .vamos/bin/startup -u help
+    bash .vamos/bin/startup -i ec
+    bash .vamos/bin/startup -i git
+    bash .vamos/bin/startup -i roulette
 fi
 
 #===============================================================================
@@ -86,9 +85,14 @@ if [ "$*" == "" ]; then
         pip install --upgrade pip
 
         printf "\x1b[33m"  # yellow
-        echo 'bash .vamos/bin/startup -u'
+        echo 'pip install matplotlib'
         printf "\x1b[0m"   # neutral
-        bash .vamos/bin/startup -u
+        pip install matplotlib
+
+        printf "\x1b[33m"  # yellow
+        echo 'bash .vamos/bin/startup -i'
+        printf "\x1b[0m"   # neutral
+        bash .vamos/bin/startup -i
     fi
 
         # activate virtual Python environment

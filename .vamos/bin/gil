@@ -1,0 +1,36 @@
+#!/bin/bash
+# gil: git log with decorated log tree
+
+   if [ "$*" == "-?" ]; then
+      echo '   usage: gil             # git log with decorated log tree'
+      echo '          gil <dir>       # git log from a given directory'
+      echo '   see also: gid, gik, gil, gip, gir, gis, giu, chk, tag'
+      exit 1
+   fi
+
+#===============================================================================
+# git log with no args
+#===============================================================================
+
+   if [ "$*" == "" ]; then
+     ec -y 'git log --decorate --oneline --graph --all'
+     ec -g "Repository: `git config --get remote.origin.url`"
+     git log --decorate --oneline --graph --all
+     exit 0
+   fi
+
+#===============================================================================
+# git log from a given directory
+#===============================================================================
+
+   if [ "$*" != "-?" ]; then
+     cd "$1"
+     gil
+     exit 0
+   fi
+
+#===============================================================================
+# error, if we come here
+#===============================================================================
+
+  gil -?
