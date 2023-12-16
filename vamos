@@ -5,7 +5,7 @@
 # => thus do not use `exit` in this script
 
 _NAME='vamos'
-_VERSION='E.1.2'
+_VERSION='0.1.2'
 
 # ANSI color code sequence
 
@@ -17,6 +17,7 @@ _MAGENTA='\x1b[35m'
 _CYAN='\x1b[36m'
 _NORMAL='\x1b[0m'
 
+_ECHO="bash $_NAME"
 _OK=0
 
 #===============================================================================
@@ -79,43 +80,54 @@ fi
 # usage: $ . vamos -?
 #===============================================================================
 
-if [ "$*" == "-?" ] || [ "$*" == "--help" ]; then
-    printf $_YELLOW
-    echo "usage: (vamos version $_VERSION)"
-    printf $_NORMAL
-    printf $_GREEN
-    echo "session init:              # consider to run in .bashrc/.bash_profile"
-    printf $_NORMAL
-    echo "       . $_NAME             # BASH session init (setup $_NAME alias)"
+if [ "$*" == "-?" ]; then
+    $_ECHO -@y "usage: (vamos version $_VERSION)"
+    $_ECHO -@g "session init:              # consider to run in .bashrc/.bash_profile"
+    echo "    . $_NAME             # BASH session init (setup $_NAME alias)"
     echo ""
-    printf $_GREEN
-    echo "clone & activate playground:"
-    printf $_NORMAL
-    echo "       $_NAME @jmpstart/toy-samples"
-    echo "       $_NAME https://github.com/jmpstart/toy-samples.git"
+    $_ECHO -@g "activate playground (including virtual Python environment):"
+    echo "    $_NAME               # setup/activate playground"
     echo ""
-    printf $_GREEN
-    echo "activate playground (including virtual Python environment):"
-    printf $_NORMAL
-    echo "       $_NAME               # setup/activate playground"
+    $_ECHO -@g "clone & activate playground:"
+    echo "    $_NAME @jmpstart/toy-samples"
+    echo "    $_NAME https://github.com/jmpstart/toy-samples.git"
     echo ""
-    printf $_GREEN
-    echo "tasks:"
-    printf $_NORMAL
-    echo "       $_NAME -a            # activate virtual playground"
-    echo "       $_NAME -c            # create virtual Python environment"
-    echo "       $_NAME -d            # deactivate virtual playground"
-    echo "       $_NAME -f            # find playground root directory"
-    echo "       $_NAME -g repo file  # curl from github"
-    echo "       $_NAME -r            # remove virtual Python environment"
-    echo "       $_NAME -u            # uninstall $_NAME"
+    $_ECHO -@g "help:"
+    echo "    $_NAME -?            # short help (usage)"
+    echo "    $_NAME --help        # comprehensive help"
+    _OK=1
+fi
+
+#===============================================================================
+# usage: $ . vamos -?
+#===============================================================================
+
+if [ "$*" == "--help" ]; then
+    bash vamos -?                    # usage
+    $_ECHO -@g "tasks:"
+    echo "    $_NAME -a            # activate virtual playground"
+    echo "    $_NAME -c            # create virtual Python environment"
+    echo "    $_NAME -d            # deactivate virtual playground"
+    echo "    $_NAME -e            # print virtual environment directory"
+    echo "    $_NAME -f            # find playground root directory"
+    echo "    $_NAME -g repo file  # curl from github"
+    echo "    $_NAME -r            # remove virtual Python environment"
+    echo "    $_NAME -s            # startup playground"
+    echo "    $_NAME -u            # uninstall $_NAME"
     echo ""
-    printf $_GREEN
-    echo "usage, version:"
-    printf $_NORMAL
-    echo "       $_NAME -?            # show usage"
-    echo "       $_NAME --help        # show comprehensive help"
-    echo "       $_NAME --version     # print version"
+    $_ECHO -@g "echo colored text:"
+    echo "    $_NAME -@r ...       # echo red text"
+    echo "    $_NAME -@g ...       # echo green text"
+    echo "    $_NAME -@b ...       # echo blue text"
+    echo "    $_NAME -@y ...       # echo yellow text"
+    echo "    $_NAME -@c ...       # echo cyan text"
+    echo "    $_NAME -@m ...       # echo magenta text"
+    echo "    $_NAME -@n ...       # echo normal text"
+    echo ""
+    $_ECHO -@g "other:"
+    echo "    $_NAME --gtag <url>  # convert git URL to git tag"
+    echo "    $_NAME --version     # print version"
+
     _OK=1
 fi
 
@@ -129,25 +141,16 @@ if [ "$*" == "-a" ]; then
     elif [ -d .venv ]; then
         source .venv/bin/activate
     else
-        _DONE=0
-        _ITEMS=`ls -a`
-        for _ITEM in $_ITEMS; do
-            if [ "$_ITEM" != "." ] && [ "$_ITEM" != ".." ] && [ "$_DONE" == 0 ]
-            then
-                if [ -d "$_ITEM" ]; then
-                    #echo dir $_FILE
-                    _FILE="$_ITEM/bin/activate"
-                    if [ -f "$_FILE" ]; then
-                        #echo "source $_FILE"
-                        deactivate 2>/dev/null
-                        source $_FILE
-                        _DONE=1
-	                  fi
-                fi
-            fi
-        done
-
-        if [ "$_DONE" == 0 ]; then
+        _VENV=`bash vamos -e`  # return virtual environment directory
+        if [ "$_VENV" != "" ]; then
+            #echo "source $_FILE"
+            deactivate 2>/dev/null
+            source $_VENV/bin/activate
+        elif [ -d ".vamos" ]; then
+            bash vamos -c      # create virtual environment
+            source vamos -a    # activate virtual environment
+            source vamos -s    # startup playground
+        else
             printf $_RED
             printf 'error: no virtual environment directory'
             printf $_NORMAL
@@ -158,9 +161,7 @@ if [ "$*" == "-a" ]; then
             echo ')'
         fi
 
-        unset _ITEMS
-        unset _ITEM
-        unset _DONE
+        unset _VENV
     fi
     _OK=1
 fi
@@ -218,9 +219,7 @@ if [ "$*" != "" ]; then
             #echo 'https://github.com prefix'
             _URL="$*";  #_URL=${_URL#"@"}
             _REPO=${_URL#*/}
-            printf $_YELLOW
-            echo "git clone $_URL"
-            printf $_NORMAL
+            $_ECHO -@y "git clone $_URL"
             git clone $_URL
         else                            # short repo URL
             _TAG="$*";
@@ -229,9 +228,7 @@ if [ "$*" != "" ]; then
 
             _URL=https://github.com/"$_TAG.git"
             #echo 'no https://github.com prefix'
-            printf $_YELLOW
-            echo "git clone $_URL"
-            printf $_NORMAL
+            $_ECHO -@y "git clone $_URL"
             git clone $_URL
         fi
 
@@ -241,14 +238,10 @@ if [ "$*" != "" ]; then
         cd $_REPO
 
         if [ -f .vamos/bin/startup ]; then
-            printf $_YELLOW
-            echo 'source .vamos/bin/startup'
-            printf $_NORMAL
+            $_ECHO -@y 'source .vamos/bin/startup'
             source .vamos/bin/startup ''
         else
-            printf $_RED
-            echo 'error: cannot find .vamos/bin/startup script'
-            printf $_NORMAL
+            $_ECHO -@r 'error: cannot find .vamos/bin/startup script'
         fi
 
         unset _LONG
@@ -269,21 +262,13 @@ if [ "$*" == "-c" ] || [ "$*" == "-c!" ]; then
     if [ "$1" != "-c!" ]; then  # not sure that we run in a child process
         bash $_NAME -c!         # run as a child process, call with -c! option
     else                        # else part runs as child process
-        printf $_CYAN
-        echo creating virtual environment
-        printf $_NORMAL
-
+        $_ECHO -@c creating virtual environment
         deactivate 2>/dev/null  # does not deactivate venv of parent process
 
-        printf $_YELLOW
-        echo python3 -m venv venv
-        printf $_NORMAL
+        $_ECHO -@y python3 -m venv venv
         python3 -m venv venv    # create virtual Python environment
 
-        printf $_YELLOW
-        echo 'pip install pip --upgrade >/dev/null'
-        printf $_NORMAL
-
+        $_ECHO -@y 'pip install pip --upgrade >/dev/null'
         source venv/bin/activate
         pip install pip --upgrade >/dev/null
     fi
@@ -317,14 +302,84 @@ if [ "$*" == "-u" ] || [ "$*" == "--uninstall" ]; then
     rm $_APP || _ERR=2
 
     if [ "$_ERR" == "0" ]; then
-        printf $_GREEN
-        echo 'vamos (version $_VERSION) succesfully uninstalled'
-        printf $_NORMAL
+        $_ECHO -@r 'vamos (version $_VERSION) succesfully uninstalled'
     fi
 
     unset _APP
     unset _ERR
  fi
+
+#===============================================================================
+# print virtual environment directory
+#===============================================================================
+
+if [ "$*" == "-e" ]; then
+    if  [ -d venv ]; then
+        echo venv
+    elif [ -d .venv ]; then
+        echo .venv
+    else
+        _DONE=0
+        _ITEMS=`ls -a`
+        for _ITEM in $_ITEMS; do
+            if [ "$_ITEM" != "." ] && [ "$_ITEM" != ".." ] && [ "$_DONE" == 0 ]
+            then
+                if [ -d "$_ITEM" ]; then
+                    #echo dir $_FILE
+                    _FILE="$_ITEM/bin/activate"
+                    if [ -f "$_FILE" ]; then
+                        echo "$_ITEM"
+                        _DONE=1
+	                  fi
+                fi
+            fi
+        done
+
+        unset _ITEMS
+        unset _ITEM
+        unset _DONE
+        unset _FILE
+    fi
+    _OK=1
+fi
+
+#===============================================================================
+# remove virtual environment directory
+#===============================================================================
+
+if [ "$*" == "-r" ]; then
+    _VENV=`bash vamos -e`
+    if [ "$_VENV" != "" ]; then
+        deactivate 2>/dev/null
+        rm -rf $_VENV
+    fi
+
+    unset _VENV
+    _OK=1
+fi
+
+#===============================================================================
+# startup playground
+#===============================================================================
+
+if [ "$*" == "-s" ]; then
+    printf $_CYAN
+    echo 'startup playground'
+    printf $_NORMAL
+
+    _VENV=`bash vamos -e`
+
+    if [ -f .vamos/bin/startup ]; then
+        if [ "$_VENV" != "" ] && [ "$VIRTUAL_ENV" != "" ]; then
+            $_ECHO -@y 'source .vamos/bin/startup'
+            source .vamos/bin/startup
+        fi
+    fi
+
+    _OK=1
+
+    unset _VENV
+fi
 
 #===============================================================================
 # print vamos target directory
@@ -350,15 +405,70 @@ if [ "$*" == "-t" ] || [ "$*" == "-t!" ]; then
 fi
 
 #===============================================================================
+# echo colored text
+# - vamos -@r ....  # red
+# - vamos -@g ....  # green
+# - vamos -@b ....  # blue
+# - vamos -@y ....  # yellow
+# - vamos -@c ....  # cyan
+# - vamos -@m ....  # magenta
+# - vamos -@n ....  # normal
+#===============================================================================
+
+if [ "$1" == "-@r" ]; then
+    printf $_RED;  shift;  echo $*;  printf $_NORMAL; _OK=1
+fi
+
+if [ "$1" == "-@g" ]; then
+    printf $_GREEN;  shift;  echo $*;  printf $_NORMAL;  _OK=1
+fi
+
+if [ "$1" == "-@b" ]; then
+    printf $_BLUE;  shift;  echo $*;  printf $_NORMAL;  _OK=1
+fi
+
+if [ "$1" == "-@y" ]; then
+    printf $_YELLOW;  shift;  echo $*;  printf $_NORMAL;  _OK=1
+fi
+
+if [ "$1" == "-@c" ]; then
+    printf $_CYAN;  shift;  echo $*;  printf $_NORMAL;  _OK=1
+fi
+
+if [ "$1" == "-@m" ]; then
+    printf $_MAGENTA;  shift;  echo $*;  printf $_NORMAL;  _OK=1
+fi
+
+if [ "$1" == "-@n" ]; then
+    printf $_NORMAL;  shift;  echo $*;  _OK=1
+fi
+
+#===============================================================================
+# convert github URL to github tag
+# - convert https://github.com/myhub/my-repo.git => @myhub/my-repo
+# - return empty string if syntax not matching
+#===============================================================================
+
+if [ "$1" == "--gtag" ] && [ "$2" != "" ] && [ "$3" == "" ]; then
+   _TAG="$1"
+   echo 'initial:' $_TAG
+   _TAG=${$_TAG%.git}
+   echo 'strip off suffix:' $_TAG
+   _TAG=${$_TAG#https://github.com/}
+   echo 'strip off suffix:' $_TAG
+
+   unset _TAG
+   _OK=1
+fi
+
+#===============================================================================
 # cleanup
 # - since this script is sourced all temporary variables have to be unset
 # - otherwise they would be left as garbage in the calling shell
 #===============================================================================
 
 if [ "$_OK" == "0" ]; then
-    printf $_RED
-    echo "error: bad calling syntax: vamos $*"
-    printf $_NORMAL
+    $_ECHO -@r "error: bad calling syntax: vamos $*"
     bash vamos -?
 fi
 
@@ -373,4 +483,5 @@ unset _MAGENTA
 unset _CYAN
 unset _NORMAL
 
+unset _ECHO
 unset _OK
