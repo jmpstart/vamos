@@ -80,29 +80,42 @@ fi
 #===============================================================================
 
 if [ "$*" == "-?" ] || [ "$*" == "--help" ]; then
-    printf $_GREEN
-    echo "vamos (version $_VERSION)"
+    printf $_YELLOW
+    echo "usage: (vamos version $_VERSION)"
     printf $_NORMAL
-    echo "usage: . $_NAME             # BASH session init: setup $_NAME alias"
-    echo "       $_NAME               # setup/activate playground"
+    printf $_GREEN
+    echo "session init:              # consider to run in .bashrc/.bash_profile"
+    printf $_NORMAL
+    echo "       . $_NAME             # BASH session init (setup $_NAME alias)"
     echo ""
+    printf $_GREEN
+    echo "clone & activate playground:"
+    printf $_NORMAL
     echo "       $_NAME @jmpstart/toy-samples"
     echo "       $_NAME https://github.com/jmpstart/toy-samples.git"
     echo ""
-    echo "       $_NAME -?            # show usage"
-    echo "       $_NAME --help        # show comprehensive help"
-    echo "       $_NAME --version     # print version"
+    printf $_GREEN
+    echo "activate playground (including virtual Python environment):"
+    printf $_NORMAL
+    echo "       $_NAME               # setup/activate playground"
     echo ""
-    echo "helpers:"
-    echo ""
+    printf $_GREEN
+    echo "tasks:"
+    printf $_NORMAL
     echo "       $_NAME -a            # activate virtual playground"
     echo "       $_NAME -c            # create virtual Python environment"
     echo "       $_NAME -d            # deactivate virtual playground"
     echo "       $_NAME -f            # find playground root directory"
     echo "       $_NAME -g repo file  # curl from github"
-    echo "       $_NAME -d            # deactivate virtual playground"
+    echo "       $_NAME -r            # remove virtual Python environment"
     echo "       $_NAME -u            # uninstall $_NAME"
     echo ""
+    printf $_GREEN
+    echo "usage, version:"
+    printf $_NORMAL
+    echo "       $_NAME -?            # show usage"
+    echo "       $_NAME --help        # show comprehensive help"
+    echo "       $_NAME --version     # print version"
     _OK=1
 fi
 
@@ -126,12 +139,24 @@ if [ "$*" == "-a" ]; then
                     _FILE="$_ITEM/bin/activate"
                     if [ -f "$_FILE" ]; then
                         #echo "source $_FILE"
+                        deactivate 2>/dev/null
                         source $_FILE
                         _DONE=1
 	                  fi
                 fi
             fi
         done
+
+        if [ "$_DONE" == 0 ]; then
+            printf $_RED
+            printf 'error: no virtual environment directory'
+            printf $_NORMAL
+            printf ' (create with: '
+            printf $_GREEN
+            printf 'vamos -c'
+            printf $_NORMAL
+            echo ')'
+        fi
 
         unset _ITEMS
         unset _ITEM
@@ -244,8 +269,23 @@ if [ "$*" == "-c" ] || [ "$*" == "-c!" ]; then
     if [ "$1" != "-c!" ]; then  # not sure that we run in a child process
         bash $_NAME -c!         # run as a child process, call with -c! option
     else                        # else part runs as child process
+        printf $_CYAN
+        echo creating virtual environment
+        printf $_NORMAL
+
         deactivate 2>/dev/null  # does not deactivate venv of parent process
+
+        printf $_YELLOW
+        echo python3 -m venv venv
+        printf $_NORMAL
         python3 -m venv venv    # create virtual Python environment
+
+        printf $_YELLOW
+        echo 'pip install pip --upgrade >/dev/null'
+        printf $_NORMAL
+
+        source venv/bin/activate
+        pip install pip --upgrade >/dev/null
     fi
     _OK=1
 fi
