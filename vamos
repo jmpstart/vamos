@@ -82,19 +82,19 @@ fi
 
 if [ "$*" == "-?" ]; then
     $_ECHO -@y "usage: (vamos version $_VERSION)"
-    $_ECHO -@g "session init:              # consider to run in .bashrc/.bash_profile"
-    echo "    . $_NAME             # BASH session init (setup $_NAME alias)"
+    $_ECHO -@g "session init: (consider to run in .bashrc/.bash_profile)"
+    echo "    . $_NAME                    # BASH session init (setup $_NAME alias)"
     echo ""
     $_ECHO -@g "activate playground (including virtual Python environment):"
-    echo "    $_NAME               # setup/activate playground"
+    echo "    $_NAME                      # setup/activate playground"
     echo ""
     $_ECHO -@g "clone & activate playground:"
     echo "    $_NAME @jmpstart/toy-samples"
     echo "    $_NAME https://github.com/jmpstart/toy-samples.git"
     echo ""
     $_ECHO -@g "help:"
-    echo "    $_NAME -?            # short help (usage)"
-    echo "    $_NAME --help        # comprehensive help"
+    echo "    $_NAME -?                   # short help (usage)"
+    echo "    $_NAME --help               # comprehensive help"
     _OK=1
 fi
 
@@ -105,28 +105,29 @@ fi
 if [ "$*" == "--help" ]; then
     bash vamos -?                    # usage
     $_ECHO -@g "tasks:"
-    echo "    $_NAME -a            # activate virtual playground"
-    echo "    $_NAME -c            # create virtual Python environment"
-    echo "    $_NAME -d            # deactivate virtual playground"
-    echo "    $_NAME -e            # print virtual environment directory"
-    echo "    $_NAME -f            # find playground root directory"
-    echo "    $_NAME -g repo file  # curl from github"
-    echo "    $_NAME -r            # remove virtual Python environment"
-    echo "    $_NAME -s            # startup playground"
-    echo "    $_NAME -u            # uninstall $_NAME"
+    echo "    $_NAME -a                   # activate virtual playground"
+    echo "    $_NAME -c                   # create virtual Python environment"
+    echo "    $_NAME -d                   # deactivate virtual playground"
+    echo "    $_NAME -e                   # print virtual environment directory"
+    echo "    $_NAME -f                   # find playground root directory"
+    echo "    $_NAME -g <tag> <path>      # convert github tag to github raw URL"
+    echo "    $_NAME -r                   # remove virtual Python environment"
+    echo "    $_NAME -s                   # startup playground"
+    echo "    $_NAME -u                   # uninstall $_NAME"
     echo ""
     $_ECHO -@g "echo colored text:"
-    echo "    $_NAME -@r ...       # echo red text"
-    echo "    $_NAME -@g ...       # echo green text"
-    echo "    $_NAME -@b ...       # echo blue text"
-    echo "    $_NAME -@y ...       # echo yellow text"
-    echo "    $_NAME -@c ...       # echo cyan text"
-    echo "    $_NAME -@m ...       # echo magenta text"
-    echo "    $_NAME -@n ...       # echo normal text"
+    echo "    $_NAME -@r ...              # echo red text"
+    echo "    $_NAME -@g ...              # echo green text"
+    echo "    $_NAME -@b ...              # echo blue text"
+    echo "    $_NAME -@y ...              # echo yellow text"
+    echo "    $_NAME -@c ...              # echo cyan text"
+    echo "    $_NAME -@m ...              # echo magenta text"
+    echo "    $_NAME -@n ...              # echo normal text"
     echo ""
     $_ECHO -@g "other:"
-    echo "    $_NAME --gtag <url>  # convert git URL to git tag"
-    echo "    $_NAME --version     # print version"
+    echo "    $_NAME --gurl <tag> <path>  # convert github tag to github raw URL"
+    echo "    $_NAME --gtag <url>         # convert github URL to github tag"
+    echo "    $_NAME --version            # print version"
 
     _OK=1
 fi
@@ -444,21 +445,49 @@ if [ "$1" == "-@n" ]; then
 fi
 
 #===============================================================================
+# convert github tag to github raw URL
+# - usage: vamos --gurl @myhub/my-repo
+#          vamos --gurl @jmpstart/vamos main/util/ec
+# - convert @myhub/my-repo => https://raw.githubusercontent.com/myhub/my-repo
+# - add arg3 to URL if provided
+# - return empty string if syntax not matching
+#===============================================================================
+
+if [ "$1" == "--gurl" ] || [ "$1" == "-g" ]; then
+    if [ "$2" != "" ] && [ "$4" == "" ]; then
+        _TAG="$2"
+        #echo 'initial:' $_TAG
+        _TAG=${_TAG#"@"}
+        #echo 'strip off prefix:' $_TAG
+
+        if [ "$3" == "" ]; then
+            echo "https://raw.githubusercontent.com/$_TAG"
+        else
+            echo "https://raw.githubusercontent.com/$_TAG/$3"
+        fi
+
+        unset _TAG
+        _OK=1
+    fi
+fi
+
+#===============================================================================
 # convert github URL to github tag
 # - convert https://github.com/myhub/my-repo.git => @myhub/my-repo
 # - return empty string if syntax not matching
 #===============================================================================
 
-if [ "$1" == "--gtag" ] && [ "$2" != "" ] && [ "$3" == "" ]; then
-   _TAG="$1"
-   echo 'initial:' $_TAG
-   _TAG=${$_TAG%.git}
-   echo 'strip off suffix:' $_TAG
-   _TAG=${$_TAG#https://github.com/}
-   echo 'strip off suffix:' $_TAG
+if [ "$1" == "--gtag" ] && [ "$2" != "" ] && [ "$4" == "" ]; then
+    _TAG="$2"
+    #echo 'initial:' $_TAG
+    _TAG=${_TAG%".git"}
+    #echo 'strip off suffix:' $_TAG
+    _TAG=${_TAG#"https://github.com/"}
+    #echo 'strip off prefix:' $_TAG
 
-   unset _TAG
-   _OK=1
+    echo "@$_TAG"
+    unset _TAG
+    _OK=1
 fi
 
 #===============================================================================

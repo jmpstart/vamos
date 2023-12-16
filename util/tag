@@ -1,0 +1,45 @@
+#!/bin/bash
+# tag: provide/delete a git tag (both local and remote)
+
+   if [ "$*" == "-?" ]; then
+      echo '   usage: tag -! <tag>    # provide a tag (local & remote)'
+      echo '          tag -d <tag>    # delete a tag (local & remote)'
+      echo '          tag -r <tag>    # refresh a tag (local & remote)'
+      echo '          tag -?          # usage'
+      echo '   see also: gib, gic, gil, gip, gir, gis, tag'
+      exit 1
+   fi
+
+# first handle "-d" and "-r" options
+
+   if [ "$1" == "-d" ]; then
+      git tag -d $2                   # delete local tag
+      git push --delete origin $2     # delete remote tag
+      gil
+      exit 0
+   fi
+
+   if [ "$1" == "-r" ]; then
+      git tag -d $2                   # delete local tag
+      git push --delete origin $2     # delete remote tag
+      tag -! $2
+      exit 0
+   fi
+
+# make sure that arg1 equals "-!" to provide a tag
+
+   if [ "$1" != "-!" ]; then
+      tag -?
+      exit 1
+   fi
+
+   if [ "$2" == "" ]; then
+      tag -?
+      exit 1
+   fi
+
+# provide a tag
+
+   git tag "$2"
+   git push --tags
+   gil
