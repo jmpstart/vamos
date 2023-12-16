@@ -5,58 +5,25 @@
 # => thus do not use `exit` in this script
 
 _VAMOS_VERSION=0.1.2
-_VAMOS_NAME=vamos
+_VAMOS=vamos
 
 #===============================================================================
-# magic conditional launch call:
-# - this launch option together with the magic conditional launch call
-#
-#    (return 0 2>/dev/null) && source $_VAMOS_NAME --launch $* && return 0
-#    (return 0 2>/dev/null) && (echo "assertion violation"; exit 1)
-#
-#   guarantees that, after the magic conditional launch call:
-#     1) local environment settings are unset
-#     2) exit statement can be used without terminating the caller
-#     3) the envirionment (settings, aliases, functions) of the calling
-#        process cannot be spoiled
-# - the second line is optional and prints an assertion violation stzatement
-#   if it is executed in sourced mode
-# - to process this clause the script must be sourced!
-# - use the magic conditional launch call  following line for each clause which
-#   needs to run as child:
+# usage
+# - can only run in unsourced mode with '---usage' option
 #===============================================================================
 
-if [ "$1" == "--launch" ]; then
-    (return 0 2>/dev/null) && _SOURCED=1 || _SOURCED=0  # determine _SOURCED
-    if [ "$_SOURCED" == 0 ]; then
-        $_VAMOS_NAME -@R "error: script not sourced!"
-        exit 1
-    else
-        #echo "launching a BASH child process: $*"
-        shift; bash $_VAMOS_NAME $*   # launch a BASH child process
-        unset _VAMOS_NAME     # cleanup - the main reason of this clause
-        unset _VAMOS_VERSION  # cleanup - the main reason of this clause
-        return 0
-    fi
-fi
-
-#===============================================================================
-# usage: $ . vamos -?
-# - can run in both sourced/unsourced mode
-#===============================================================================
-
-if [ "$*" == "-?" ]; then
-    (return 0 2>/dev/null) && source $_VAMOS_NAME --launch $* && return 0
-    (return 0 2>/dev/null) && (echo "assertion violation"; exit 1)
+if [ "$*" == "---usage" ]; then
+    (return 0 2>/dev/null) && \
+        (echo "assertion violation: ---usage"; return 0) && return 1
 
         # from here we cannot spoil the caller's environment
 
-    VAMOS=$_VAMOS_NAME
+    VAMOS=$_VAMOS
 
     $VAMOS -@Y "usage: (vamos version $_VAMOS_VERSION)"
 
     $VAMOS -@G "session init: (consider to run in .bashrc/.bash_profile)"
-    echo "    . $VAMOS                    # BASH session init (setup $VAMOS alias)"
+    echo "    . $VAMOS                    # BASH session init (install $VAMOS alias)"
     echo ""
     $VAMOS -@G "activate playground (including virtual Python environment):"
     echo "    $VAMOS                      # setup/activate playground"
@@ -86,17 +53,18 @@ fi
 
 #===============================================================================
 # comprehensive help
+# - can only run in unsourced mode with '---help' option
 #===============================================================================
 
-if [ "$*" == "--help" ]; then
-    (return 0 2>/dev/null) && source $_VAMOS_NAME --launch $* && return 0
-    (return 0 2>/dev/null) && (echo "assertion violation"; exit 1)
+if [ "$*" == "---help" ]; then
+    (return 0 2>/dev/null) && \
+        (echo "assertion violation: ---help"; return 0) && return 1
 
         # from here we cannot spoil the caller's environment
 
-    VAMOS=$_VAMOS_NAME
+    VAMOS=$_VAMOS
 
-    bash vamos -?                    # usage
+    bash $_VAMOS -?                  # usage
     echo ""
     $VAMOS -@G "print colored text:"
     echo "    $VAMOS -@R ...              # echo red text with newline"
@@ -143,25 +111,13 @@ if [ "$*" == "" ]; then
         vamos -@g '. vamos'
         vamos -@n '` (dot-space-vamos)\n'
     else
-        alias vamos="source vamos -!"
+        alias vamos="source vamos"
+        source $_VAMOS -a     # activate
     fi
 
     unset _SOURCED
     unset _VAMOS_VERSION  # cleanup, since we might run in sourced mode
-    unset _VAMOS_NAME     # cleanup, since we might run in sourced mode
-    return 0 2>/dev/null || exit 0  # safe return/exit
-fi
-
-#===============================================================================
-# activate virtual environment: `$ vamos -!`
-# - must run in sourced mode
-#===============================================================================
-
-if [ "$*" == "-!" ]; then
-    source $_VAMOS_NAME -a   # activate virtual playground
-
-    unset _VAMOS_VERSION  # cleanup, since we might run in sourced mode
-    unset _VAMOS_NAME     # cleanup, since we might run in sourced mode
+    unset _VAMOS     # cleanup, since we might run in sourced mode
     return 0 2>/dev/null || exit 0  # safe return/exit
 fi
 
@@ -173,12 +129,12 @@ fi
 if [ "$*" == "-a" ]; then
     (return 0 2>/dev/null) && _SOURCED=1 || _SOURCED=0  # determine _SOURCED
     if [ "$_SOURCED" == 0 ]; then
-        vamos -@r "error: unsourced 'vamos -a'"
-        vamos -@n " => use '"
-        vamos -@g ". vamos -a"
-        vamos -@n "' or '"
-        vamos -@g ". vamos; vamos -a"
-        vamos -@n "'\n"
+        $_VAMOS -@r "error: unsourced '$_VAMOS -a'"
+        $_VAMOS -@n " => use '"
+        $_VAMOS -@g ". $_VAMOS -a"
+        $_VAMOS -@n "' or '"
+        $_VAMOS -@g ". $_VAMOS; $_VAMOS -a"
+        $_VAMOS -@n "'\n"
         unset _SOURCED
         exit 1
     fi
@@ -188,27 +144,28 @@ if [ "$*" == "-a" ]; then
     elif [ -d .venv ]; then
         source .venv/bin/activate
     else
-        _vENV=`vamos -e`  # return virtual environment directory
+        _vENV=`$_VAMOS -e` # return virtual environment directory
+
         if [ "$_vENV" != "" ]; then
             #echo "source $_FILE"
             deactivate 2>/dev/null
             source $_vENV/bin/activate
         elif [ -d ".vamos" ]; then
-            bash vamos -c      # create virtual environment
-            source vamos -a    # activate virtual environment
-            source vamos -s    # startup playground
+            bash $_VAMOS -c      # create virtual environment
+            source $_VAMOS -a    # activate virtual environment
+            source $_VAMOS -s    # startup playground
         else
-            vamos -@r 'error: no virtual environment directory'
-            vamos -@n ' (create with: '
-            vamos -@g 'vamos -c'
-            vamos -@n ')'
+            bash $_VAMOS -@r 'error: no virtual environment directory'
+            bash $_VAMOS -@n ' (create with: '
+            bash $_VAMOS -@g "$_VAMOS -c"
+            bash $_VAMOS -@N ')'
         fi
 
         unset _vENV
     fi
 
     unset _VAMOS_VERSION  # cleanup, since we might run in sourced mode
-    unset _VAMOS_NAME     # cleanup, since we might run in sourced mode
+    unset _VAMOS     # cleanup, since we might run in sourced mode
     return 0 2>/dev/null || exit 0  # safe return/exit
 fi
 
@@ -220,12 +177,12 @@ fi
 if [ "$*" == "-d" ]; then
     (return 0 2>/dev/null) && _SOURCED=1 || _SOURCED=0  # determine _SOURCED
     if [ "$_SOURCED" == 0 ]; then
-        vamos -@r "error: unsourced 'vamos -d'"
-        vamos -@n " => use '"
-        vamos -@g ". vamos -d"
-        vamos -@n "' or '"
-        vamos -@g ". vamos; vamos -d"
-        vamos -@n "'\n"
+        $_VAMOS -@r "error: unsourced '$_VAMOS -d'"
+        $_VAMOS -@n " => use '"
+        $_VAMOS -@g ". $_VAMOS -d"
+        $_VAMOS -@n "' or '"
+        $_VAMOS -@g ". $_VAMOS; $_VAMOS -d"
+        $_VAMOS -@n "'\n"
         unset _SOURCED
         exit 1
     fi
@@ -233,7 +190,41 @@ if [ "$*" == "-d" ]; then
     deactivate 2>/dev/null
 
     unset _VAMOS_VERSION  # cleanup, since we might run in sourced mode
-    unset _VAMOS_NAME     # cleanup, since we might run in sourced mode
+    unset _VAMOS     # cleanup, since we might run in sourced mode
+    return 0 2>/dev/null || exit 0  # safe return/exit
+fi
+
+#===============================================================================
+# remove virtual environment directory
+#===============================================================================
+
+if [ "$*" == "-r" ]; then
+    (return 0 2>/dev/null) && _SOURCED=1 || _SOURCED=0  # determine _SOURCED
+    if [ "$_SOURCED" == 0 ]; then
+        $_VAMOS -@r "error: unsourced '$_VAMOS -r'"
+        $_VAMOS -@n " => use '"
+        $_VAMOS -@g ". $_VAMOS -r"
+        $_VAMOS -@n "' or '"
+        $_VAMOS -@g ". $_VAMOS; $_VAMOS -r"
+        $_VAMOS -@n "'\n"
+        unset _SOURCED
+        exit 1
+    fi
+
+    _vENV=`bash $_VAMOS -e`
+
+    if [ "$_vENV" == "" ]; then
+        bash $_VAMOS -@R "error: $_VAMOS -r => no virtual Python environment!"
+    else
+        _APP=$_VAMOS               # _VAMOS will be unset in next line
+        source $_VAMOS -d          # deactivate venv
+        rm -rf $_vENV
+        bash $_APP -@G "$_vENV successfully removed"
+    fi
+
+    unset _vENV
+    unset _VAMOS_VERSION  # cleanup, since we might run in sourced mode
+    unset _VAMOS     # cleanup, since we might run in sourced mode
     return 0 2>/dev/null || exit 0  # safe return/exit
 fi
 
@@ -253,9 +244,9 @@ unset _SOURCED
 
     # remove arg1 and shift other args left
 
-if [ "$1" == "-!" ]; then
-    shift  # removes arg1 and shifts other args left
-fi
+#if [ "$1" == "-!" ]; then
+#    shift  # removes arg1 and shifts other args left
+#fi
 
     # make sure that script is running un-sourced mode
 
@@ -269,6 +260,19 @@ fi
 #===============================================================================
 #===============================================================================
 
+APP=$_VAMOS
+VERSION=$_VAMOS_VERSION
+
+ECHO="bash $APP"
+
+RED='\x1b[31m'
+GREEN='\x1b[32m'
+YELLOW='\x1b[33m'
+BLUE='\x1b[34m'
+MAGENTA='\x1b[35m'
+CYAN='\x1b[36m'
+NORMAL='\x1b[0m'
+
 #===============================================================================
 # echo colored text with newline
 # - vamos -@R ....  # red
@@ -278,42 +282,34 @@ fi
 # - vamos -@M ....  # magenta
 # - vamos -@C ....  # cyan
 # - vamos -@N ....  # normal
-#
-# - _RED='\x1b[31m'
-# - _GREEN='\x1b[32m'
-# - _BLUE='\x1b[34m'
-# - _YELLOW='\x1b[33m'
-# - _MAGENTA='\x1b[35m'
-# - _CYAN='\x1b[36m'
-# - _NORMAL='\x1b[0m'
 #===============================================================================
 
 if [ "$1" == "-@R" ]; then
-    shift;  printf '\x1b[31m';  echo "$*";  printf '\x1b[0m';  exit 0
+    shift;  printf $RED;  echo "$*";  printf $NORMAL;  exit 0
 fi
 
 if [ "$1" == "-@G" ]; then
-    shift;  printf '\x1b[32m';  echo "$*";  printf '\x1b[0m';  exit 0
+    shift;  printf $GREEN;  echo "$*";  printf $NORMAL;  exit 0
 fi
 
 if [ "$1" == "-@B" ]; then
-    shift;  printf '\x1b[34m';  echo "$*";  printf '\x1b[0m';  exit 0
+    shift;  printf $BLUE;  echo "$*";  printf $NORMAL;  exit 0
 fi
 
 if [ "$1" == "-@Y" ]; then
-    shift;  printf '\x1b[33m';  echo "$*";  printf '\x1b[0m';  exit 0
+    shift;  printf $YELLOW;  echo "$*";  printf $NORMAL;  exit 0
 fi
 
 if [ "$1" == "-@C" ]; then
-    shift;  printf '\x1b[36m';  echo "$*";  printf '\x1b[0m';  exit 0
+    shift;  printf $CYAN;  echo "$*";  printf $NORMAL;  exit 0
 fi
 
 if [ "$1" == "-@M" ]; then
-    shift;  printf '\x1b[35m';  echo "$*";  printf '\x1b[0m';  exit 0
+    shift;  printf $MAGENTA;  echo "$*";  printf $NORMAL;  exit 0
 fi
 
 if [ "$1" == "-@N" ]; then
-    shift;  printf '\x1b[0m';   echo "$*";  exit 0
+    shift;  printf $NORMAL;   echo "$*";  exit 0
 fi
 
 #===============================================================================
@@ -328,31 +324,247 @@ fi
 #===============================================================================
 
 if [ "$1" == "-@r" ]; then
-    shift;  printf "\x1b[31m$*"; exit 0
+    shift;  printf $RED; printf "$*"; exit 0
 fi
 
 if [ "$1" == "-@g" ]; then
-    shift;  printf "\x1b[32m$*"; exit 0
+    shift;  printf $GREEN; printf "$*"; exit 0
 fi
 
 if [ "$1" == "-@y" ]; then
-    shift;  printf "\x1b[33m$*"; exit 0
+    shift;  printf $YELLOW; printf "$*"; exit 0
 fi
 
 if [ "$1" == "-@b" ]; then
-    shift;  printf "\x1b[34m$*"; exit 0
+    shift;  printf $BLUE; printf "$*"; exit 0
 fi
 
 if [ "$1" == "-@m" ]; then
-    shift;  printf "\x1b[35m$*"; exit 0
+    shift;  printf $MAGENTA; printf "$*"; exit 0
 fi
 
 if [ "$1" == "-@c" ]; then
-    shift;  printf "\x1b[36m$*"; exit 0
+    shift;  printf $CYAN; printf "$*"; exit 0
 fi
 
 if [ "$1" == "-@n" ]; then
-    shift;  printf "\x1b[0m$*"; exit 0
+    shift;  printf $NORMAL;  printf "$*"; exit 0
+fi
+
+#===============================================================================
+# usage
+#===============================================================================
+
+if [ "$*" == '-?' ]; then
+    bash $APP '---usage'
+    exit 0
+fi
+
+#===============================================================================
+# comprehensive help
+#===============================================================================
+
+if [ "$*" == '--help' ]; then
+    bash $APP '---help'
+    exit 0
+fi
+
+#===============================================================================
+# create virtual Python environment (folder venv)
+#===============================================================================
+
+if [ "$*" == "-c" ]; then
+    $ECHO -@C creating virtual environment
+    source $APP -d  # does not deactivate venv of parent process
+
+    if [ -f .vamos/bin/venv ]; then
+        VENV=`bash .vamos/bin/venv`
+        if [ "$VENV" = "" ]; then
+            VENV=venv   # use default name
+        fi
+    else
+        VENV=venv  # use default name
+    fi
+
+    $ECHO -@Y python3 -m venv $VENV
+    python3 -m venv $VENV    # create virtual Python environment
+
+    $ECHO -@Y 'pip install pip --upgrade >/dev/null'
+
+    source $APP -a   # activate
+    pip install pip --upgrade >/dev/null
+    exit 0
+fi
+
+#===============================================================================
+# print virtual environment directory
+#===============================================================================
+
+if [ "$*" == "-e" ]; then
+    if  [ -d venv ]; then
+        echo venv
+    elif [ -d .venv ]; then
+        echo .venv
+    else
+        DONE=0
+        ITEMS=`ls -a`
+        for ITEM in $ITEMS; do
+            if [ "$ITEM" != "." ] && [ "$ITEM" != ".." ] && [ "$DONE" == 0 ]
+            then
+                if [ -d "$ITEM" ]; then
+                    #echo dir $FILE
+                    FILE="$ITEM/bin/activate"
+                    if [ -f "$FILE" ]; then
+                        echo "$ITEM"
+                        DONE=1
+	                  fi
+                fi
+            fi
+        done
+    fi
+    exit 0
+fi
+
+#===============================================================================
+# print version: $ . vamos --version
+#===============================================================================
+
+if [ "$*" == "--version" ]; then
+    echo $VERSION
+    exit 0
+fi
+
+#===============================================================================
+# uninstall: $ . vamos -u
+#===============================================================================
+
+if [ "$*" == "-u" ] || [ "$*" == "--uninstall" ]; then
+    #_URL=https://raw.githubusercontent.com/ihux/vamos/main/install
+    #curl -s $_URL >~vamos; . ~vamos -u
+    #unset _URL
+
+    _APP=`which $APP`
+    ERR=0
+
+    if [ -f ./~vamos ]; then
+        rm ./~vamos 2>/dev/null || ERR=1
+    fi
+
+    rm $_APP || ERR=2
+
+    if [ "$ERR" == 0 ]; then
+        $_ECHO -@R "$APP (version $VERSION) succesfully uninstalled"
+    fi
+
+    exit 0
+fi
+
+#===============================================================================
+# startup playground
+#===============================================================================
+
+if [ "$*" == "-s" ]; then
+    printf $_CYAN
+    echo 'startup playground'
+    printf $_NORMAL
+
+    _vENV=`bash vamos -e`
+
+    if [ -f .vamos/bin/startup ]; then
+        if [ "$_vENV" != "" ] && [ "$VIRTUAL_ENV" != "" ]; then
+            $_ECHO -@Y 'source .vamos/bin/startup'
+            source .vamos/bin/startup
+        fi
+    fi
+
+    unset _vENV
+    exit 0
+fi
+
+#===============================================================================
+# print vamos target directory
+# - with option -t we are not sure wheter running in child or parent process
+# - option -t! indicates that the caller launched us as a child process
+#===============================================================================
+
+if [ "$*" == "-t" ] || [ "$*" == "-t!" ]; then
+    if [ "$1" != "-t!" ]; then  # not sure that we run in a child process
+        bash $APP -t!         # run as a child process, call with -t! option
+    else  # in the else part we run in a child process
+        deactivate 2>/dev/null  # deactivate in child but not parent process
+        _PYDIR=`which python3`
+
+        if [ "$_PYDIR" != "" ]; then
+            _PYDIR=${_PYDIR%"/python3"}
+        fi
+
+        echo $_PYDIR
+        unset _PYDIR
+    fi
+    exit 0
+fi
+
+#===============================================================================
+# curl from github
+# - usage: vamos --curl @myhub/my-repo main/util/ec
+#          vamos -g @myhub/my-repo main/util/ec
+#===============================================================================
+
+if [ "$1" == "--gurl" ]; then
+    if [ "$2" != "" ] && [ "$4" == "" ]; then
+        _TAG="$2"
+        #echo 'initial:' $_TAG
+        _TAG=${_TAG#"@"}
+        #echo 'strip off prefix:' $_TAG
+
+        if [ "$3" == "" ]; then
+            echo "https://raw.githubusercontent.com/$_TAG"
+        else
+            echo "https://raw.githubusercontent.com/$_TAG/$3"
+        fi
+
+        unset _TAG
+        exit 0
+    fi
+fi
+
+#===============================================================================
+# convert github tag to github raw URL
+# - usage: vamos --gurl @myhub/my-repo
+#          vamos --gurl @jmpstart/vamos main/util/ec
+# - convert @myhub/my-repo => https://raw.githubusercontent.com/myhub/my-repo
+# - add arg3 to URL if provided
+#===============================================================================
+
+if [ "$1" == "--curl" ] || [ "$1" == "-g" ]; then
+    shift
+    _OPTS="-s"
+    _URL=`bash $APP --gurl $*`
+    #echo '_URL:' $_URL
+
+    curl $_OPTS $_URL
+
+    unset _OPTS
+    unset _URL
+    exit 0
+fi
+
+#===============================================================================
+# convert github URL to github tag
+# - convert https://github.com/myhub/my-repo.git => @myhub/my-repo
+#===============================================================================
+
+if [ "$1" == "--gtag" ] && [ "$2" != "" ] && [ "$4" == "" ]; then
+    _TAG="$2"
+    #echo 'initial:' $_TAG
+    _TAG=${_TAG%".git"}
+    #echo 'strip off suffix:' $_TAG
+    _TAG=${_TAG#"https://github.com/"}
+    #echo 'strip off prefix:' $_TAG
+
+    echo "@$_TAG"
+    unset _TAG
+    exit 0
 fi
 
 #===============================================================================
@@ -415,228 +627,11 @@ if [ "$*" != "" ]; then
 fi
 
 #===============================================================================
-# create virtual Python environment (folder venv)
-# - option -c! indicates that the caller launched us as a child process
-#===============================================================================
-
-if [ "$*" == "-c" ] || [ "$*" == "-c!" ]; then
-    if [ "$1" != "-c!" ]; then  # not sure that we run in a child process
-        bash $_NAME -c!         # run as a child process, call with -c! option
-    else                        # else part runs as child process
-        $_ECHO -@C creating virtual environment
-        deactivate 2>/dev/null  # does not deactivate venv of parent process
-
-        $_ECHO -@Y python3 -m venv venv
-        python3 -m venv venv    # create virtual Python environment
-
-        $_ECHO -@Y 'pip install pip --upgrade >/dev/null'
-        source venv/bin/activate
-        pip install pip --upgrade >/dev/null
-    fi
-    exit 0
-fi
-
-#===============================================================================
-# print version: $ . vamos --version
-#===============================================================================
-
-if [ "$*" == "--version" ]; then
-    echo $_VERSION
-    exit 0
-fi
-
-#===============================================================================
-# uninstall: $ . vamos -u
-#===============================================================================
-
-if [ "$*" == "-u" ] || [ "$*" == "--uninstall" ]; then
-    #_URL=https://raw.githubusercontent.com/ihux/vamos/main/install
-    #curl -s $_URL >~vamos; . ~vamos -u
-    #unset _URL
-
-    _APP=`which vamos`
-    _ERR=0
-
-    if [ -f ./~vamos ]; then
-        rm ./~vamos 2>/dev/null || _ERR=1
-    fi
-
-    rm $_APP || _ERR=2
-
-    if [ "$_ERR" == "0" ]; then
-        $_ECHO -@R 'vamos (version $_VERSION) succesfully uninstalled'
-    fi
-
-    unset _APP
-    unset _ERR
-    exit 0
-fi
-
-#===============================================================================
-# print virtual environment directory
-#===============================================================================
-
-if [ "$*" == "-e" ]; then
-    if  [ -d venv ]; then
-        echo venv
-    elif [ -d .venv ]; then
-        echo .venv
-    else
-        _DONE=0
-        _ITEMS=`ls -a`
-        for _ITEM in $_ITEMS; do
-            if [ "$_ITEM" != "." ] && [ "$_ITEM" != ".." ] && [ "$_DONE" == 0 ]
-            then
-                if [ -d "$_ITEM" ]; then
-                    #echo dir $_FILE
-                    _FILE="$_ITEM/bin/activate"
-                    if [ -f "$_FILE" ]; then
-                        echo "$_ITEM"
-                        _DONE=1
-	                  fi
-                fi
-            fi
-        done
-
-        unset _ITEMS
-        unset _ITEM
-        unset _DONE
-        unset _FILE
-    fi
-    exit 0
-fi
-
-#===============================================================================
-# remove virtual environment directory
-#===============================================================================
-
-if [ "$*" == "-r" ]; then
-    _vENV=`bash vamos -e`
-    if [ "$_vENV" != "" ]; then
-        deactivate 2>/dev/null
-        rm -rf $_vENV
-    fi
-
-    unset _vENV
-    exit 0
-fi
-
-#===============================================================================
-# startup playground
-#===============================================================================
-
-if [ "$*" == "-s" ]; then
-    printf $_CYAN
-    echo 'startup playground'
-    printf $_NORMAL
-
-    _vENV=`bash vamos -e`
-
-    if [ -f .vamos/bin/startup ]; then
-        if [ "$_vENV" != "" ] && [ "$VIRTUAL_ENV" != "" ]; then
-            $_ECHO -@Y 'source .vamos/bin/startup'
-            source .vamos/bin/startup
-        fi
-    fi
-
-    unset _vENV
-    exit 0
-fi
-
-#===============================================================================
-# print vamos target directory
-# - with option -t we are not sure wheter running in child or parent process
-# - option -t! indicates that the caller launched us as a child process
-#===============================================================================
-
-if [ "$*" == "-t" ] || [ "$*" == "-t!" ]; then
-    if [ "$1" != "-t!" ]; then  # not sure that we run in a child process
-        bash $_NAME -t!         # run as a child process, call with -t! option
-    else  # in the else part we run in a child process
-        deactivate 2>/dev/null  # deactivate in child but not parent process
-        _PYDIR=`which python3`
-
-        if [ "$_PYDIR" != "" ]; then
-            _PYDIR=${_PYDIR%"/python3"}
-        fi
-
-        echo $_PYDIR
-        unset _PYDIR
-    fi
-    exit 0
-fi
-
-#===============================================================================
-# curl from github
-# - usage: vamos --curl @myhub/my-repo main/util/ec
-#          vamos -g @myhub/my-repo main/util/ec
-#===============================================================================
-
-if [ "$1" == "--gurl" ]; then
-    if [ "$2" != "" ] && [ "$4" == "" ]; then
-        _TAG="$2"
-        #echo 'initial:' $_TAG
-        _TAG=${_TAG#"@"}
-        #echo 'strip off prefix:' $_TAG
-
-        if [ "$3" == "" ]; then
-            echo "https://raw.githubusercontent.com/$_TAG"
-        else
-            echo "https://raw.githubusercontent.com/$_TAG/$3"
-        fi
-
-        unset _TAG
-        exit 0
-    fi
-fi
-
-#===============================================================================
-# convert github tag to github raw URL
-# - usage: vamos --gurl @myhub/my-repo
-#          vamos --gurl @jmpstart/vamos main/util/ec
-# - convert @myhub/my-repo => https://raw.githubusercontent.com/myhub/my-repo
-# - add arg3 to URL if provided
-#===============================================================================
-
-if [ "$1" == "--curl" ] || [ "$1" == "-g" ]; then
-    shift
-    _OPTS="-s"
-    _URL=`bash $_NAME --gurl $*`
-    #echo '_URL:' $_URL
-
-    curl $_OPTS $_URL
-
-    unset _OPTS
-    unset _URL
-    exit 0
-fi
-
-#===============================================================================
-# convert github URL to github tag
-# - convert https://github.com/myhub/my-repo.git => @myhub/my-repo
-#===============================================================================
-
-if [ "$1" == "--gtag" ] && [ "$2" != "" ] && [ "$4" == "" ]; then
-    _TAG="$2"
-    #echo 'initial:' $_TAG
-    _TAG=${_TAG%".git"}
-    #echo 'strip off suffix:' $_TAG
-    _TAG=${_TAG#"https://github.com/"}
-    #echo 'strip off prefix:' $_TAG
-
-    echo "@$_TAG"
-    unset _TAG
-    exit 0
-fi
-
-#===============================================================================
 # cleanup
 # - since this script is sourced all temporary variables have to be unset
 # - otherwise they would be left as garbage in the calling shell
 #===============================================================================
 
-if [ "$_OK" == "0" ]; then
-    $_ECHO -@R "error: bad calling syntax: vamos $*"
-    vamos -?
-    exit 0
-fi
+$ECHO -@R "error: bad calling syntax: vamos $*"
+$APP -?
+exit 0
