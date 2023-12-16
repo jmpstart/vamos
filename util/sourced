@@ -1,0 +1,51 @@
+#!/bin/bash
+# sourced - demonstrate how to check wheter a script is sourced
+#           also demonstrates how to terminate a script safely, which is
+#           written for both sourced and unsourced mode
+
+#===============================================================================
+# - to check wheter a script is sourced use: (return 0 2>/dev/null) && _SOURCED=1 || _SOURCED=0
+# - Bash allows return statements only from functions and, in a script's top-
+#   level scope, only if the script is sourced.
+# - if return is used in the top-level scope of a non-sourced script, an error
+#   message is emitted, and the exit code is set to 1.
+# - (return 0 2>/dev/null) executes return in a subshell and suppresses the
+#   error message
+# - afterwards the exit code indicates whether the script was sourced (0) or
+#   not (1), which is used with the && and || operators to set the _SOURCED
+#   variable accordingly.
+# - use of a subshell is necessary, because executing return in the top-level
+#   scope of a sourced script would exit the script
+#===============================================================================
+
+(return 0 2>/dev/null) && _SOURCED=1 || _SOURCED=0
+
+   # now we can conveniently dispatch on $_SOURCED
+
+if [ "$_SOURCED" == 1 ]; then
+    echo script is sourced
+else
+    echo script is not sourced
+fi
+
+   # keep in mind that the script might be sourced and environment
+   # variable _SOURCED might stay as garbage in the calling process
+   # so we better unset local settings
+
+unset _SOURCED
+
+   # to exit from a sourced script can be also tricky, because a
+   # call to exit in a sourced script may terminate the calling
+   # process. So we try to `return` in the assumption that we are
+   # running in a sourced script. If the `return` statement issues
+   # an error, we catch this error with the `||` operator and perform
+   # the exit statement, which is safe, since this happens only if
+   # the script has not been sourced
+
+return 0 2>/dev/null || exit 0  # save return/exit
+
+   # this point will never be reached, since in the sourced case the
+   # `return` was successful, and in the unsourced case the `exit`
+   # terminates the script successfully.
+
+echo 'impossible to see this message!'
