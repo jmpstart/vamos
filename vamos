@@ -126,7 +126,7 @@ fi
 # - must run in sourced mode
 #===============================================================================
 
-if [ "$*" == "-a" ]; then
+if [ "$*" == "-a" ] || [ "$*" == "-an" ]; then
     (return 0 2>/dev/null) && _SOURCED=1 || _SOURCED=0  # determine _SOURCED
     if [ "$_SOURCED" == 0 ]; then
         $_VAMOS -@r "error: unsourced '$_VAMOS -a'"
@@ -151,8 +151,8 @@ if [ "$*" == "-a" ]; then
             deactivate 2>/dev/null
             source $_vENV/bin/activate
         elif [ -d ".vamos" ]; then
-            bash $_VAMOS -c      # create virtual environment
-            source $_VAMOS -a    # activate virtual environment
+            bash $_VAMOS -cv     # create (verbose) virtual environment
+            source $_VAMOS -an   # activate virtual environment, no unset
             source $_VAMOS -s    # startup playground
         else
             bash $_VAMOS -@r 'error: no virtual environment directory'
@@ -164,8 +164,10 @@ if [ "$*" == "-a" ]; then
         unset _vENV
     fi
 
-    unset _VAMOS_VERSION  # cleanup, since we might run in sourced mode
-    unset _VAMOS     # cleanup, since we might run in sourced mode
+    if [ "$*" != "-an" ]; then
+        unset _VAMOS_VERSION  # cleanup, since we might run in sourced mode
+        unset _VAMOS     # cleanup, since we might run in sourced mode
+    fi
     return 0 2>/dev/null || exit 0  # safe return/exit
 fi
 
@@ -174,7 +176,7 @@ fi
 # - must run in sourced mode
 #===============================================================================
 
-if [ "$*" == "-d" ]; then
+if [ "$*" == "-d" ] || [ "$*" == "-dn" ]; then
     (return 0 2>/dev/null) && _SOURCED=1 || _SOURCED=0  # determine _SOURCED
     if [ "$_SOURCED" == 0 ]; then
         $_VAMOS -@r "error: unsourced '$_VAMOS -d'"
@@ -189,8 +191,10 @@ if [ "$*" == "-d" ]; then
 
     deactivate 2>/dev/null
 
-    unset _VAMOS_VERSION  # cleanup, since we might run in sourced mode
-    unset _VAMOS     # cleanup, since we might run in sourced mode
+    if [ "$*" != "-dn" ]; then
+        unset _VAMOS_VERSION  # cleanup, since we might run in sourced mode
+        unset _VAMOS     # cleanup, since we might run in sourced mode
+    fi
     return 0 2>/dev/null || exit 0  # safe return/exit
 fi
 
@@ -216,10 +220,9 @@ if [ "$*" == "-r" ]; then
     if [ "$_vENV" == "" ]; then
         bash $_VAMOS -@R "error: $_VAMOS -r => no virtual Python environment!"
     else
-        _APP=$_VAMOS               # _VAMOS will be unset in next line
-        source $_VAMOS -d          # deactivate venv
+        source $_VAMOS -dn       # deactivate venv, no unset
         rm -rf $_vENV
-        bash $_APP -@G "$_vENV successfully removed"
+        bash $_VAMOS -@G "$_vENV successfully removed"
     fi
 
     unset _vENV
@@ -373,12 +376,14 @@ fi
 # create virtual Python environment (folder venv)
 #===============================================================================
 
-if [ "$*" == "-c" ]; then
-    $ECHO -@C creating virtual environment
+if [ "$*" == "-c" ] || [ "$*" == "-cv" ]; then
+    if [ "$*" == "-cv" ]; then
+        $ECHO -@C creating virtual environment
+    fi
     source $APP -d  # does not deactivate venv of parent process
 
-    if [ -f .vamos/bin/venv ]; then
-        VENV=`bash .vamos/bin/venv`
+    if [ -f .vamos/etc/venv ]; then
+        VENV=`bash .vamos/etc/venv`
         if [ "$VENV" = "" ]; then
             VENV=venv   # use default name
         fi
@@ -386,13 +391,22 @@ if [ "$*" == "-c" ]; then
         VENV=venv  # use default name
     fi
 
-    $ECHO -@Y python3 -m venv $VENV
+    if [ "$*" == "-cv" ]; then
+        $ECHO -@Y python3 -m venv $VENV
+    fi
     python3 -m venv $VENV    # create virtual Python environment
 
-    $ECHO -@Y 'pip install pip --upgrade >/dev/null'
+    if [ "$*" == "-cv" ]; then
+        $ECHO -@Y "($VENV) pip install pip --upgrade >/dev/null"
+    fi
 
     source $APP -a   # activate
     pip install pip --upgrade >/dev/null
+
+    if [ "$*" == "-cv" ]; then
+        pip list
+        $ECHO -@G "virtual environment $VENV created"
+    fi
     exit 0
 fi
 
@@ -439,9 +453,9 @@ fi
 #===============================================================================
 
 if [ "$*" == "-u" ] || [ "$*" == "--uninstall" ]; then
-    #_URL=https://raw.githubusercontent.com/ihux/vamos/main/install
-    #curl -s $_URL >~vamos; . ~vamos -u
-    #unset _URL
+    #URL=https://raw.githubusercontent.com/ihux/vamos/main/install
+    #curl -s $URL >~vamos; . ~vamos -u
+    #unset URL
 
     _APP=`which $APP`
     ERR=0
@@ -453,7 +467,7 @@ if [ "$*" == "-u" ] || [ "$*" == "--uninstall" ]; then
     rm $_APP || ERR=2
 
     if [ "$ERR" == 0 ]; then
-        $_ECHO -@R "$APP (version $VERSION) succesfully uninstalled"
+        $ECHO -@R "$APP (version $VERSION) succesfully uninstalled"
     fi
 
     exit 0
@@ -472,7 +486,7 @@ if [ "$*" == "-s" ]; then
 
     if [ -f .vamos/bin/startup ]; then
         if [ "$_vENV" != "" ] && [ "$VIRTUAL_ENV" != "" ]; then
-            $_ECHO -@Y 'source .vamos/bin/startup'
+            $ECHO -@Y 'source .vamos/bin/startup'
             source .vamos/bin/startup
         fi
     fi
@@ -492,14 +506,13 @@ if [ "$*" == "-t" ] || [ "$*" == "-t!" ]; then
         bash $APP -t!         # run as a child process, call with -t! option
     else  # in the else part we run in a child process
         deactivate 2>/dev/null  # deactivate in child but not parent process
-        _PYDIR=`which python3`
+        PYDIR=`which python3`
 
-        if [ "$_PYDIR" != "" ]; then
-            _PYDIR=${_PYDIR%"/python3"}
+        if [ "$PYDIR" != "" ]; then
+            PYDIR=${PYDIR%"/python3"}
         fi
 
-        echo $_PYDIR
-        unset _PYDIR
+        echo $PYDIR
     fi
     exit 0
 fi
@@ -512,18 +525,18 @@ fi
 
 if [ "$1" == "--gurl" ]; then
     if [ "$2" != "" ] && [ "$4" == "" ]; then
-        _TAG="$2"
-        #echo 'initial:' $_TAG
-        _TAG=${_TAG#"@"}
-        #echo 'strip off prefix:' $_TAG
+        TAG="$2"
+        #echo 'initial:' $TAG
+        TAG=${TAG#"@"}
+        #echo 'strip off prefix:' $TAG
 
         if [ "$3" == "" ]; then
-            echo "https://raw.githubusercontent.com/$_TAG"
+            echo "https://raw.githubusercontent.com/$TAG"
         else
-            echo "https://raw.githubusercontent.com/$_TAG/$3"
+            echo "https://raw.githubusercontent.com/$TAG/$3"
         fi
 
-        unset _TAG
+        unset TAG
         exit 0
     fi
 fi
@@ -539,13 +552,13 @@ fi
 if [ "$1" == "--curl" ] || [ "$1" == "-g" ]; then
     shift
     _OPTS="-s"
-    _URL=`bash $APP --gurl $*`
-    #echo '_URL:' $_URL
+    URL=`bash $APP --gurl $*`
+    #echo 'URL:' $URL
 
-    curl $_OPTS $_URL
+    curl $_OPTS $URL
 
     unset _OPTS
-    unset _URL
+    unset URL
     exit 0
 fi
 
@@ -555,74 +568,67 @@ fi
 #===============================================================================
 
 if [ "$1" == "--gtag" ] && [ "$2" != "" ] && [ "$4" == "" ]; then
-    _TAG="$2"
-    #echo 'initial:' $_TAG
-    _TAG=${_TAG%".git"}
-    #echo 'strip off suffix:' $_TAG
-    _TAG=${_TAG#"https://github.com/"}
-    #echo 'strip off prefix:' $_TAG
+    TAG="$2"
+    #echo 'initial:' $TAG
+    TAG=${TAG%".git"}
+    #echo 'strip off suffix:' $TAG
+    TAG=${TAG#"https://github.com/"}
+    #echo 'strip off prefix:' $TAG
 
-    echo "@$_TAG"
-    unset _TAG
+    echo "@$TAG"
+    unset TAG
     exit 0
 fi
 
 #===============================================================================
-# standard call: . vamos myplayground/three-samples
+# standard call: . vamos @myplayground/three-samples
 # - argument needs to contain at least one slash
 #===============================================================================
 
 if [ "$*" != "" ]; then
-    _SLASH=0
-    echo $1 | grep '/' >/dev/null && _SLASH=1
+    SLASH=0
+    echo $1 | grep '/' >/dev/null && SLASH=1
 
-    if [ $_SLASH == 1 ]; then   # default
+    if [ $SLASH == 1 ]; then   # default
 
             # figure out whether arg $1 has short form `myplayground/sample`
             # or long form `https://github.com/myplayground/sample.git`
 
-        _LONG=0
-        echo $* | grep https://github.com/ >/dev/null && _LONG=1
+        LONG=0
+        echo $* | grep https://github.com/ >/dev/null && LONG=1
 
             # clone repository - deal with both short and long form
             # of repository URL
 
-        if [ "$_LONG" == "1" ]; then   # long repo URL
+        if [ "$LONG" == "1" ]; then   # long repo URL
             #echo 'https://github.com prefix'
-            _URL="$*";  #_URL=${_URL#"@"}
-            _REPO=${_URL#*/}
-            $_ECHO -@Y "git clone $_URL"
-            git clone $_URL
+            URL="$*";  #URL=${URL#"@"}
+            REPO=${URL#*/}
+            $ECHO -@Y "git clone $URL"
+            git clone $URL
         else                            # short repo URL
-            _TAG="$*";
-            _TAG=${_TAG#"@"}        # remove leading '@'
-            _REPO=${_TAG#*/}
+            TAG="$*";
+            TAG=${TAG#"@"}        # remove leading '@'
+            REPO=${TAG#*/}
 
-            _URL=https://github.com/"$_TAG.git"
+            URL=https://github.com/"$TAG.git"
             #echo 'no https://github.com prefix'
-            $_ECHO -@Y "git clone $_URL"
-            git clone $_URL
+            $ECHO -@Y "git clone $URL"
+            git clone $URL
         fi
 
-        printf $_YELLOW
-        echo cd $_REPO
-        printf $_NORMAL
-        cd $_REPO
+        $ECHO -@Y "cd $REPO"
+        cd $REPO
 
-        if [ -f .vamos/bin/startup ]; then
-            $_ECHO -@Y 'source .vamos/bin/startup'
-            source .vamos/bin/startup ''
+        if [ -f .vamos/etc/setup ]; then
+            $ECHO -@Y 'source .vamos/etc/setup'
+            source .vamos/etc/startup ''
+            $ECHO -@G "strtup complete"
         else
-            $_ECHO -@R 'error: cannot find .vamos/bin/startup script'
+            $ECHO -@R 'error: cannot find .vamos/bin/startup script'
         fi
-
-        unset _LONG
-        unset _URL
-        unset _REPO
-        unset _TAG
     fi
 
-    unset _SLASH
     exit 0
 fi
 
