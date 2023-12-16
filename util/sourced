@@ -42,7 +42,7 @@ unset _SOURCED
    # the exit statement, which is safe, since this happens only if
    # the script has not been sourced
 
-return 0 2>/dev/null || exit 0  # save return/exit
+return 0 2>/dev/null || exit 0  # safe return/exit
 
    # this point will never be reached, since in the sourced case the
    # `return` was successful, and in the unsourced case the `exit`
