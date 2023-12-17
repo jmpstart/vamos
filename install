@@ -209,7 +209,7 @@ if [ "$*" = "-i" ] || [ "$*" = "-is" ]; then
 
     if [ "$_ERR" == 0 ]; then
         _VERIFY=`vamos --version`
-        _MORE='(check with `vamos --help`)'
+        _MORE='(check with `vamos --?`)'
 
         if [ "$_VERIFY" == "$_VERSION" ]; then
             printf $_GREEN
