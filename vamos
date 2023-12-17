@@ -118,7 +118,7 @@ if [ "$*" == "" ]; then
         vamos -@n '` (dot-space-vamos)\n'
     else
         alias vamos="source $_APP"
-        alias wd="source $_APP -w" 
+        alias wd="source $_APP -w"
         source $_APP -as     # activate
     fi
 
@@ -144,22 +144,27 @@ if [ "$*" == "-a" ] || [ "$*" == "-as" ] \
         exit 1
     fi
 
-    if  [ -d venv ]; then
+        # if there is a .vamos folder and no virtual environment directory
+        # in the current directory, a venv will be created
+
+    _vENV=`bash $_APP -e` # return virtual environment directory
+
+    if [ -d .vamos ] && [ "$_vENV" == "" ]; then
+        bash $_APP -cv             # create virtual environment directory
+        source $_APP -an           # activate VENV
+        source $_APP -s            # startup playground
+    elif [ -d venv ]; then
+        deactivate 2>/dev/null
         source venv/bin/activate
     elif [ -d .venv ]; then
+        deactivate 2>/dev/null
         source .venv/bin/activate
     else
-        #_vENV=`$_VAMOS -e` # return virtual environment directory
-        _vENV=`$_VAMOS -p` # return virtual environment directory
+        _vENV=`bash $_APP -p` # return virtual environment directory
 
         if [ "$_vENV" != "" ]; then
-            #echo "source $_FILE"
             deactivate 2>/dev/null
             source $_vENV/bin/activate
-        elif [ -d ".vamos" ]; then
-            bash $_APP -cv     # create (verbose) virtual environment, no unset
-            source $_APP -an   # activate virtual environment, no unset
-            source $_APP -s    # startup playground
         elif [ "$*" != "-as" ] && [ "$*" != "-ans" ]; then
             bash $_APP -@r 'error: no virtual environment directory'
             bash $_APP -@n ' (create with: '
@@ -583,7 +588,9 @@ if [ "$*" == "-c" ] || [ "$*" == "-cv" ]; then
         $ECHO -@Y "($VENV) pip install pip --upgrade >/dev/null"
     fi
 
-    source $APP -a   # activate
+    deactivate 2>/dev/null
+    source $VENV/bin/activate
+
     pip install pip --upgrade >/dev/null
 
     if [ "$*" == "-cv" ]; then
