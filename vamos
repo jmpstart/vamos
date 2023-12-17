@@ -132,13 +132,9 @@ fi
 if [ "$*" == "-a" ] || [ "$*" == "-as" ] \
                     || [ "$*" == "-an" ] || [ "$*" == "-ans" ]; then
     (return 0 2>/dev/null) && _SOURCED=1 || _SOURCED=0  # determine _SOURCED
+
     if [ "$_SOURCED" == 0 ]; then
-        $_VAMOS -@r "error: unsourced '$_VAMOS -a'"
-        $_VAMOS -@n " => use '"
-        $_VAMOS -@g ". $_VAMOS -a"
-        $_VAMOS -@n "' or '"
-        $_VAMOS -@g ". $_VAMOS; $_VAMOS -a"
-        $_VAMOS -@n "'\n"
+        bash $_VAMOS ---unsourced "$*"
         unset _SOURCED
         exit 1
     fi
@@ -183,12 +179,7 @@ fi
 if [ "$*" == "-d" ] || [ "$*" == "-dn" ]; then
     (return 0 2>/dev/null) && _SOURCED=1 || _SOURCED=0  # determine _SOURCED
     if [ "$_SOURCED" == 0 ]; then
-        $_VAMOS -@r "error: unsourced '$_VAMOS -d'"
-        $_VAMOS -@n " => use '"
-        $_VAMOS -@g ". $_VAMOS -d"
-        $_VAMOS -@n "' or '"
-        $_VAMOS -@g ". $_VAMOS; $_VAMOS -d"
-        $_VAMOS -@n "'\n"
+        bash $_VAMOS ---unsourced "$*"
         unset _SOURCED
         exit 1
     fi
@@ -209,12 +200,7 @@ fi
 if [ "$*" == "-r" ]; then
     (return 0 2>/dev/null) && _SOURCED=1 || _SOURCED=0  # determine _SOURCED
     if [ "$_SOURCED" == 0 ]; then
-        $_VAMOS -@r "error: unsourced '$_VAMOS -r'"
-        $_VAMOS -@n " => use '"
-        $_VAMOS -@g ". $_VAMOS -r"
-        $_VAMOS -@n "' or '"
-        $_VAMOS -@g ". $_VAMOS; $_VAMOS -r"
-        $_VAMOS -@n "'\n"
+        bash $_VAMOS ---unsourced "$*"
         unset _SOURCED
         exit 1
     fi
@@ -242,17 +228,12 @@ fi
 if [ "$*" == "-s" ]; then
     (return 0 2>/dev/null) && _SOURCED=1 || _SOURCED=0  # determine _SOURCED
     if [ "$_SOURCED" == 0 ]; then
-        $_VAMOS -@r "error: unsourced '$_VAMOS -s'"
-        $_VAMOS -@n " => use '"
-        $_VAMOS -@g ". $_VAMOS -s"
-        $_VAMOS -@n "' or '"
-        $_VAMOS -@g ". $_VAMOS; $_VAMOS -s"
-        $_VAMOS -@n "'\n"
+        bash $_VAMOS ---unsourced "$*"
         unset _SOURCED
         exit 1
     fi
 
-   bash $_VAMOS -@C 'setup playground'
+    bash $_VAMOS -@C 'setup playground'
 
     _vENV=`bash vamos -e`
 
@@ -274,18 +255,12 @@ fi
 if [ "$1" == "-w" ]; then
     (return 0 2>/dev/null) && _SOURCED=1 || _SOURCED=0  # determine _SOURCED
     if [ "$_SOURCED" == 0 ]; then
-        $_VAMOS -@r "error: unsourced '$_VAMOS -w'"
-        $_VAMOS -@n " => use '"
-        $_VAMOS -@g ". $_VAMOS -w"
-        $_VAMOS -@n "' or '"
-        $_VAMOS -@g ". $_VAMOS; $_VAMOS -w"
-        $_VAMOS -@n "'\n"
+        bash $_VAMOS ---unsourced "$*"
         unset _SOURCED
         exit 1
     fi
 
-    shift
-    _ERR=0
+    shift;  _ERR=0
     cd $* || _ERR=1
 
     if [ "$_ERR" == 0 ]; then
@@ -329,16 +304,10 @@ _TAG=${_TAG#"@"}        # remove leading '@'
 
 if [ "$*" == "@$_TAG" ]; then  # means $_TAG begins with a '@' character
     (return 0 2>/dev/null) && _SOURCED=1 || _SOURCED=0  # determine _SOURCED
-    if [ "$_SOURCED" == 0 ]; then
-        $_VAMOS -@r "error: unsourced '$_VAMOS @...'"
-        $_VAMOS -@n " => use '"
-        $_VAMOS -@g ". $_VAMOS @..."
-        $_VAMOS -@n "' or '"
-        $_VAMOS -@g ". $_VAMOS; $_VAMOS @..."
-        $_VAMOS -@n "'\n"
 
-        unset _TAG
-        unset _SOURCED
+    if [ "$_SOURCED" == 0 ]; then
+        bash $_VAMOS ---unsourced '@...'
+        unset _TAG;  unset _SOURCED
         exit 1
     fi
 
@@ -762,6 +731,21 @@ fi
 
 if [ "$*" == "--version" ]; then
     echo $VERSION
+    exit 0
+fi
+
+#===============================================================================
+# unsourced error
+# - $ vamos ---unsourced option
+#===============================================================================
+
+if [ "$1" == "---unsourced" ]; then
+    $ECHO -@r "error: unsourced '$_VAMOS $2'"
+    $ECHO -@n " => use '"
+    $ECHO -@g ". $_VAMOS $2"
+    $ECHO -@n "' or '"
+    $ECHO -@g ". $_VAMOS; $_VAMOS $2"
+    $ECHO -@n "'\n"
     exit 0
 fi
 
