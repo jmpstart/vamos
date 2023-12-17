@@ -4,7 +4,7 @@
 # remarks: this script is intended to be `sourced`!
 # => thus do not use `exit` in this script
 
-_VAMOS_VERSION=0.1.2
+_VAMOS_VERSION=0.1.3
 _VAMOS=vamos
 
 #===============================================================================

@@ -37,7 +37,7 @@
 # or:
 #    $ curl https://raw.githubusercontent.com/ihux/vamos/main/install >~vamos; . ~vamos
 
-_VERSION='0.1.2'
+_VERSION='0.1.3'
 _REPO=jmpstart/vamos
 
 # ANSI color code sequence
