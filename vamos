@@ -114,7 +114,7 @@ if [ "$*" == "" ]; then
         vamos -@n '` (dot-space-vamos)\n'
     else
         alias vamos="source vamos"
-        source $_VAMOS -a     # activate
+        source $_VAMOS -as     # activate
     fi
 
     unset _SOURCED
@@ -128,7 +128,8 @@ fi
 # - must run in sourced mode
 #===============================================================================
 
-if [ "$*" == "-a" ] || [ "$*" == "-an" ]; then
+if [ "$*" == "-a" ] || [ "$*" == "-as" ] \
+                    || [ "$*" == "-an" ] || [ "$*" == "-ans" ]; then
     (return 0 2>/dev/null) && _SOURCED=1 || _SOURCED=0  # determine _SOURCED
     if [ "$_SOURCED" == 0 ]; then
         $_VAMOS -@r "error: unsourced '$_VAMOS -a'"
@@ -156,7 +157,7 @@ if [ "$*" == "-a" ] || [ "$*" == "-an" ]; then
             bash $_VAMOS -cv     # create (verbose) virtual environment, no unset
             source $_VAMOS -an   # activate virtual environment, no unset
             source $_VAMOS -s    # startup playground
-        else
+        elif [ "$*" != "as"] && [ "$*" != "ans"]; then
             bash $_VAMOS -@r 'error: no virtual environment directory'
             bash $_VAMOS -@n ' (create with: '
             bash $_VAMOS -@g "$_VAMOS -c"
@@ -166,7 +167,7 @@ if [ "$*" == "-a" ] || [ "$*" == "-an" ]; then
         unset _vENV
     fi
 
-    if [ "$*" != "-an" ]; then
+    if [ "$*" != "-an" ] && [ "$*" != "-ans" ]; then
         unset _VAMOS_VERSION  # cleanup, since we might run in sourced mode
         unset _VAMOS     # cleanup, since we might run in sourced mode
     fi
@@ -322,7 +323,7 @@ if [ "$*" == "@$_TAG" ]; then  # means $_TAG begins with a '@' character
         bash $_VAMOS -@Y "cd $_REPO"
         cd $_REPO
 
-        source $_VAMOS -a  # activate (setup) playground
+        source $_VAMOS -as  # activate (setup) playground
     fi
 
     return 0 2>/dev/null || exit 0  # safe return/exit
