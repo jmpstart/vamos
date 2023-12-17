@@ -381,7 +381,7 @@ if [ "$*" == "@$_TAG" ]; then  # means $_TAG begins with a '@' character
             #echo 'https://github.com prefix'
             _URL="$*";  #_URL=${_URL#"@"}
             _REPO=${_URL#*/}
-            bash $_APP -@Y "git clone $_URL"
+            bash $_APP -@Y "1: git clone $_URL"
             git clone $_URL
         else                            # short repo _URL
             TAG="$*";
@@ -390,7 +390,7 @@ if [ "$*" == "@$_TAG" ]; then  # means $_TAG begins with a '@' character
 
             _URL=https://github.com/"$TAG.git"
             #echo 'no https://github.com prefix'
-            bash $_APP -@Y "git clone $_URL"
+            bash $_APP -@Y "2: git clone $_URL"
             git clone $_URL
         fi
 
