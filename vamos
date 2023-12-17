@@ -286,10 +286,13 @@ if [ "$1" == "-w" ]; then
 
         # dispatch usage/help options
 
-    if [ "$*" == "-?" ] || [ "$*" == "--help" ]; then
+    _OPT="$*"
+    if [ "$*" == "-?" ] || [ "$*" == "--help" ] || [ "${_OPT#-}" != "$_OPT" ]; then
         bash $_APP ---wd?
+        unset _OPT
         return 0
     fi
+    unset _OPT
 
         # workdir must have a value, otherwise initialize with $HOME
 
@@ -850,5 +853,6 @@ fi
 #===============================================================================
 
 $ECHO -@R "error: bad calling syntax: vamos $*"
-$APP -?
+echo "for help enter: $_VAMOS -?"
+#$APP -?
 exit 0
