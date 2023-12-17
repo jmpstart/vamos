@@ -266,6 +266,76 @@ if [ "$*" == "-s" ]; then
 fi
 
 #===============================================================================
+# standard call: . vamos @myplayground/three-samples
+# - argument needs to contain at least one slash
+#===============================================================================
+
+_TAG="$*";
+_TAG=${_TAG#"@"}        # remove leading '@'
+
+if [ "$*" == "@$_TAG" ]; then  # means $_TAG begins with a '@' character
+    (return 0 2>/dev/null) && _SOURCED=1 || _SOURCED=0  # determine _SOURCED
+    if [ "$_SOURCED" == 0 ]; then
+        $_VAMOS -@r "error: unsourced '$_VAMOS @...'"
+        $_VAMOS -@n " => use '"
+        $_VAMOS -@g ". $_VAMOS @..."
+        $_VAMOS -@n "' or '"
+        $_VAMOS -@g ". $_VAMOS; $_VAMOS @..."
+        $_VAMOS -@n "'\n"
+
+        unset _TAG
+        unset _SOURCED
+        exit 1
+    fi
+
+    _SLASH=0
+    echo $1 | grep '/' >/dev/null && _SLASH=1
+
+    if [ $_SLASH == 1 ]; then   # default
+
+            # figure out whether arg $1 has short form `myplayground/sample`
+            # or long form `https://github.com/myplayground/sample.git`
+
+        _LONG=0
+        echo $* | grep https://github.com/ >/dev/null && _LONG=1
+
+            # clone repository - deal with both short and long form
+            # of repository URL
+
+        if [ "$_LONG" == "1" ]; then   # long repo URL
+            #echo 'https://github.com prefix'
+            _URL="$*";  #_URL=${_URL#"@"}
+            _REPO=${_URL#*/}
+            bash $_VAMOS -@Y "git clone $_URL"
+            git clone $_URL
+        else                            # short repo _URL
+            TAG="$*";
+            TAG=${TAG#"@"}        # remove leading '@'
+            _REPO=${TAG#*/}
+
+            _URL=https://github.com/"$TAG.git"
+            #echo 'no https://github.com prefix'
+            bash $_VAMOS -@Y "git clone $_URL"
+            git clone $_URL
+        fi
+
+        bash $_VAMOS -@Y "cd $_REPO"
+        cd $_REPO
+
+        source $_VAMOS -a  # activate (setup) playground
+    fi
+
+    return 0 2>/dev/null || exit 0  # safe return/exit
+fi
+
+unset _TAG
+unset _URL
+unset _REPO
+unset _LONG
+unset _SLASH
+unset _SOURCED
+
+#===============================================================================
 #===============================================================================
 # from here everything must run in non-sourced mode
 #===============================================================================
@@ -580,6 +650,7 @@ if [ "$*" == '-p' ]; then
     fi
 
     echo `pwd`/$VENV
+    exit 0
 fi
 
 #===============================================================================
@@ -637,58 +708,6 @@ fi
 
 if [ "$*" == "--version" ]; then
     echo $VERSION
-    exit 0
-fi
-
-#===============================================================================
-# standard call: . vamos @myplayground/three-samples
-# - argument needs to contain at least one slash
-#===============================================================================
-
-if [ "$*" != "" ]; then
-    SLASH=0
-    echo $1 | grep '/' >/dev/null && SLASH=1
-
-    if [ $SLASH == 1 ]; then   # default
-
-            # figure out whether arg $1 has short form `myplayground/sample`
-            # or long form `https://github.com/myplayground/sample.git`
-
-        LONG=0
-        echo $* | grep https://github.com/ >/dev/null && LONG=1
-
-            # clone repository - deal with both short and long form
-            # of repository URL
-
-        if [ "$LONG" == "1" ]; then   # long repo URL
-            #echo 'https://github.com prefix'
-            URL="$*";  #URL=${URL#"@"}
-            REPO=${URL#*/}
-            $ECHO -@Y "git clone $URL"
-            git clone $URL
-        else                            # short repo URL
-            TAG="$*";
-            TAG=${TAG#"@"}        # remove leading '@'
-            REPO=${TAG#*/}
-
-            URL=https://github.com/"$TAG.git"
-            #echo 'no https://github.com prefix'
-            $ECHO -@Y "git clone $URL"
-            git clone $URL
-        fi
-
-        $ECHO -@Y "cd $REPO"
-        cd $REPO
-
-        if [ -f .vamos/etc/setup ]; then
-            $ECHO -@Y 'source .vamos/etc/setup'
-            source .vamos/etc/setup ''
-            $ECHO -@G "strtup complete"
-        else
-            $ECHO -@R 'error: cannot find .vamos/etc/setup script'
-        fi
-    fi
-
     exit 0
 fi
 
