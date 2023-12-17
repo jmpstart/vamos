@@ -270,7 +270,6 @@ fi
 #===============================================================================
 
 if [ "$1" == "-w" ]; then
-    #echo 'processsing -w ...' $*
     (return 0 2>/dev/null) && _SOURCED=1 || _SOURCED=0  # determine _SOURCED
     if [ "$_SOURCED" == 0 ]; then
         bash $_APP ---unsourced "$*"
@@ -281,6 +280,15 @@ if [ "$1" == "-w" ]; then
         exit 1
     else
         unset _SOURCED
+    fi
+
+    shift
+
+        # dispatch usage/help options
+
+    if [ "$*" == "-?" ] || [ "$*" == "--help" ]; then
+        bash $_APP ---wd?
+        return 0
     fi
 
         # workdir must have a value, otherwise initialize with $HOME
@@ -300,7 +308,7 @@ if [ "$1" == "-w" ]; then
 
         # step 2: change worekdir to $1 or $WORKDIR
 
-    shift;  _ERR=0
+    _ERR=0
     if [ "$1" != "" ]; then
         cd $1 || _ERR=1
     else
@@ -557,6 +565,22 @@ fi
 
 if [ "$*" == '--help' ]; then
     bash $APP '---help'
+    exit 0
+fi
+
+#===============================================================================
+# comprehensive help
+#===============================================================================
+
+if [ "$*" == '---wd?' ]; then
+    $ECHO -@G "usage: wd ...       # change working directory / virtual environment"
+    echo      "       wd <path>    # change current dir, occasionally switch venv"
+    echo      "       wd .         # store working directory in WORKDIR"
+    echo      '       wd           # change to $WORKDIR'
+    echo      ''
+    echo      "       activate new virtual environment if such is found in"
+    echo      "       current directory or in parent directory hierarchy."
+
     exit 0
 fi
 
