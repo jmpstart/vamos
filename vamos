@@ -49,7 +49,7 @@ if [ "$*" == "---usage" ]; then
     echo "    $VAMOS -r                   # remove virtual Python environment"
     echo "    $VAMOS -s                   # startup playground"
     echo "    $VAMOS -u                   # uninstall $VAMOS"
-    echo "    $VAMOS -w                   # change working directory
+    echo "    $VAMOS -w                   # change working directory"
 
     exit 0
 fi
