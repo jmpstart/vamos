@@ -118,7 +118,7 @@ if [ "$*" == "" ]; then
         vamos -@n '` (dot-space-vamos)\n'
     else
         alias vamos="source $_APP"
-        alias wd="source $_APP -w"
+        alias wd="source $_APP -w" 
         source $_APP -as     # activate
     fi
 
