@@ -577,9 +577,11 @@ if [ "$*" == '---wd?' ]; then
     echo      "       wd <path>    # change current dir, occasionally switch venv"
     echo      "       wd .         # store working directory in WORKDIR"
     echo      '       wd           # change to $WORKDIR'
+    echo      '       wd -?        # help'
+    echo      '       wd --help    # help'
     echo      ''
-    echo      "       activate new virtual environment if such is found in"
-    echo      "       current directory or in parent directory hierarchy."
+    echo      "       activate new virtual environment if such is found in current"
+    echo      "       directory or in parent directory hierarchy."
 
     exit 0
 fi
