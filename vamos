@@ -44,6 +44,8 @@ if [ "$*" == "---usage" ]; then
     echo "    $VAMOS -e                   # print virtual environment directory"
     echo "    $VAMOS -f                   # find playground root directory"
     echo "    $VAMOS -g <tag> <path>      # curl from github"
+    echo "    $VAMOS -i                   # install $VAMOS stuff"
+    echo "    $VAMOS -p                   # print virtual environment dir path"
     echo "    $VAMOS -r                   # remove virtual Python environment"
     echo "    $VAMOS -s                   # startup playground"
     echo "    $VAMOS -u                   # uninstall $VAMOS"
@@ -151,7 +153,7 @@ if [ "$*" == "-a" ] || [ "$*" == "-an" ]; then
             deactivate 2>/dev/null
             source $_vENV/bin/activate
         elif [ -d ".vamos" ]; then
-            bash $_VAMOS -cv     # create (verbose) virtual environment
+            bash $_VAMOS -cv     # create (verbose) virtual environment, no unset
             source $_VAMOS -an   # activate virtual environment, no unset
             source $_VAMOS -s    # startup playground
         else
@@ -228,6 +230,38 @@ if [ "$*" == "-r" ]; then
     unset _vENV
     unset _VAMOS_VERSION  # cleanup, since we might run in sourced mode
     unset _VAMOS     # cleanup, since we might run in sourced mode
+    return 0 2>/dev/null || exit 0  # safe return/exit
+fi
+
+#===============================================================================
+# startup playground
+#===============================================================================
+
+if [ "$*" == "-s" ]; then
+    (return 0 2>/dev/null) && _SOURCED=1 || _SOURCED=0  # determine _SOURCED
+    if [ "$_SOURCED" == 0 ]; then
+        $_VAMOS -@r "error: unsourced '$_VAMOS -s'"
+        $_VAMOS -@n " => use '"
+        $_VAMOS -@g ". $_VAMOS -s"
+        $_VAMOS -@n "' or '"
+        $_VAMOS -@g ". $_VAMOS; $_VAMOS -s"
+        $_VAMOS -@n "'\n"
+        unset _SOURCED
+        exit 1
+    fi
+
+   bash $_VAMOS -@C 'setup playground'
+
+    _vENV=`bash vamos -e`
+
+    if [ -f .vamos/etc/setup ]; then
+        if [ "$_vENV" != "" ] && [ "$VIRTUAL_ENV" != "" ]; then
+            bash $_VAMOS -@Y 'source .vamos/etc/setup'
+            source .vamos/etc/setup
+        fi
+    fi
+
+    unset _vENV
     return 0 2>/dev/null || exit 0  # safe return/exit
 fi
 
@@ -440,108 +474,6 @@ if [ "$*" == "-e" ]; then
 fi
 
 #===============================================================================
-# print version: $ . vamos --version
-#===============================================================================
-
-if [ "$*" == "--version" ]; then
-    echo $VERSION
-    exit 0
-fi
-
-#===============================================================================
-# uninstall: $ . vamos -u
-#===============================================================================
-
-if [ "$*" == "-u" ] || [ "$*" == "--uninstall" ]; then
-    #URL=https://raw.githubusercontent.com/ihux/vamos/main/install
-    #curl -s $URL >~vamos; . ~vamos -u
-    #unset URL
-
-    _APP=`which $APP`
-    ERR=0
-
-    if [ -f ./~vamos ]; then
-        rm ./~vamos 2>/dev/null || ERR=1
-    fi
-
-    rm $_APP || ERR=2
-
-    if [ "$ERR" == 0 ]; then
-        $ECHO -@R "$APP (version $VERSION) succesfully uninstalled"
-    fi
-
-    exit 0
-fi
-
-#===============================================================================
-# startup playground
-#===============================================================================
-
-if [ "$*" == "-s" ]; then
-    printf $_CYAN
-    echo 'startup playground'
-    printf $_NORMAL
-
-    _vENV=`bash vamos -e`
-
-    if [ -f .vamos/bin/startup ]; then
-        if [ "$_vENV" != "" ] && [ "$VIRTUAL_ENV" != "" ]; then
-            $ECHO -@Y 'source .vamos/bin/startup'
-            source .vamos/bin/startup
-        fi
-    fi
-
-    unset _vENV
-    exit 0
-fi
-
-#===============================================================================
-# print vamos target directory
-# - with option -t we are not sure wheter running in child or parent process
-# - option -t! indicates that the caller launched us as a child process
-#===============================================================================
-
-if [ "$*" == "-t" ] || [ "$*" == "-t!" ]; then
-    if [ "$1" != "-t!" ]; then  # not sure that we run in a child process
-        bash $APP -t!         # run as a child process, call with -t! option
-    else  # in the else part we run in a child process
-        deactivate 2>/dev/null  # deactivate in child but not parent process
-        PYDIR=`which python3`
-
-        if [ "$PYDIR" != "" ]; then
-            PYDIR=${PYDIR%"/python3"}
-        fi
-
-        echo $PYDIR
-    fi
-    exit 0
-fi
-
-#===============================================================================
-# curl from github
-# - usage: vamos --curl @myhub/my-repo main/util/ec
-#          vamos -g @myhub/my-repo main/util/ec
-#===============================================================================
-
-if [ "$1" == "--gurl" ]; then
-    if [ "$2" != "" ] && [ "$4" == "" ]; then
-        TAG="$2"
-        #echo 'initial:' $TAG
-        TAG=${TAG#"@"}
-        #echo 'strip off prefix:' $TAG
-
-        if [ "$3" == "" ]; then
-            echo "https://raw.githubusercontent.com/$TAG"
-        else
-            echo "https://raw.githubusercontent.com/$TAG/$3"
-        fi
-
-        unset TAG
-        exit 0
-    fi
-fi
-
-#===============================================================================
 # convert github tag to github raw URL
 # - usage: vamos --gurl @myhub/my-repo
 #          vamos --gurl @jmpstart/vamos main/util/ec
@@ -577,6 +509,132 @@ if [ "$1" == "--gtag" ] && [ "$2" != "" ] && [ "$4" == "" ]; then
 
     echo "@$TAG"
     unset TAG
+    exit 0
+fi
+
+#===============================================================================
+# curl from github
+# - usage: vamos --curl @myhub/my-repo main/util/ec
+#          vamos -g @myhub/my-repo main/util/ec
+#===============================================================================
+
+if [ "$1" == "--gurl" ]; then
+    if [ "$2" != "" ] && [ "$4" == "" ]; then
+        TAG="$2"
+        #echo 'initial:' $TAG
+        TAG=${TAG#"@"}
+        #echo 'strip off prefix:' $TAG
+
+        if [ "$3" == "" ]; then
+            echo "https://raw.githubusercontent.com/$TAG"
+        else
+            echo "https://raw.githubusercontent.com/$TAG/$3"
+        fi
+
+        unset TAG
+        exit 0
+    fi
+fi
+
+#===============================================================================
+# install vamos stuff
+#===============================================================================
+
+if [ "$*" == "-i" ]; then
+    VENV=`bash $APP -e`         # virtual environment dir
+    if [ ! -d .vamos ] || [ "$VENV" == "" ]; then
+        exit 0                  # nothing to do
+    fi
+
+    SUBDIRS=`ls .vamos`
+    for DIR in $SUBDIRS
+    do
+        if [ -d ".vamos/$DIR" ] && [ "$DIR" != '.' ] && [ "$DIR" != '..' ]; then
+            if [ ! -d "$VENV/$DIR" ]; then
+                mkdir "$VENV/$DIR"
+            fi
+
+            bash $APP -@C "installing $VENV/$DIR ..."
+
+            FILES=`ls .vamos/$DIR`
+            for FILE in $FILES
+            do
+                if [ -f ".vamos/$DIR/$FILE" ]; then
+                    echo "  install $VENV/$DIR/$FILE"
+                    cp .vamos/$DIR/$FILE $VENV/$DIR
+                fi
+            done
+        fi
+    done
+    exit 0
+fi
+
+#===============================================================================
+# print virtual environment directory path
+#===============================================================================
+
+if [ "$*" == '-p' ]; then
+    VENV=`bash $APP -e`
+    if [ "$VENV" == "" ]; then
+        exit 0                      # nothing to do
+    fi
+
+    echo `pwd`/$VENV
+fi
+
+#===============================================================================
+# print vamos target directory
+# - with option -t we are not sure wheter running in child or parent process
+# - option -t! indicates that the caller launched us as a child process
+#===============================================================================
+
+if [ "$*" == "-t" ] || [ "$*" == "-t!" ]; then
+    if [ "$1" != "-t!" ]; then  # not sure that we run in a child process
+        bash $APP -t!         # run as a child process, call with -t! option
+    else  # in the else part we run in a child process
+        deactivate 2>/dev/null  # deactivate in child but not parent process
+        PYDIR=`which python3`
+
+        if [ "$PYDIR" != "" ]; then
+            PYDIR=${PYDIR%"/python3"}
+        fi
+
+        echo $PYDIR
+    fi
+    exit 0
+fi
+
+#===============================================================================
+# uninstall: $ . vamos -u
+#===============================================================================
+
+if [ "$*" == "-u" ] || [ "$*" == "--uninstall" ]; then
+    #URL=https://raw.githubusercontent.com/ihux/vamos/main/install
+    #curl -s $URL >~vamos; . ~vamos -u
+    #unset URL
+
+    _APP=`which $APP`
+    ERR=0
+
+    if [ -f ./~vamos ]; then
+        rm ./~vamos 2>/dev/null || ERR=1
+    fi
+
+    rm $_APP || ERR=2
+
+    if [ "$ERR" == 0 ]; then
+        $ECHO -@R "$APP (version $VERSION) succesfully uninstalled"
+    fi
+
+    exit 0
+fi
+
+#===============================================================================
+# print version: $ . vamos --version
+#===============================================================================
+
+if [ "$*" == "--version" ]; then
+    echo $VERSION
     exit 0
 fi
 
