@@ -6,6 +6,7 @@
 
 _VAMOS_VERSION=0.1.3
 _VAMOS=vamos
+_APP=`which $_VAMOS`
 
 #===============================================================================
 # usage
@@ -19,25 +20,26 @@ if [ "$*" == "---usage" ]; then
         # from here we cannot spoil the caller's environment
 
     VAMOS=$_VAMOS
+    APP="bash $_APP"
 
-    $VAMOS -@Y "usage: (vamos version $_VAMOS_VERSION)"
+    $APP -@Y "usage: (vamos version $_VAMOS_VERSION)"
 
-    $VAMOS -@G "session init: (consider to run in .bashrc/.bash_profile)"
+    $APP -@G "session init: (consider to run in .bashrc/.bash_profile)"
     echo "    . $VAMOS                    # BASH session init (install $VAMOS alias)"
     echo ""
-    $VAMOS -@G "activate playground (including virtual Python environment):"
+    $APP -@G "activate playground (including virtual Python environment):"
     echo "    $VAMOS                      # setup/activate playground"
     echo ""
-    $VAMOS -@G "clone & activate playground:"
+    $APP -@G "clone & activate playground:"
     echo "    $VAMOS @jmpstart/toy-samples"
     echo "    $VAMOS https://github.com/jmpstart/toy-samples.git"
     echo ""
-    $VAMOS -@G "help:"
+    $APP -@G "help:"
     echo "    $VAMOS -?                   # show usage"
     echo "    $VAMOS --help               # comprehensive help"
     echo ""
 
-    $VAMOS -@G "tasks:"
+    $APP -@G "tasks:"
     echo "    $VAMOS -a                   # activate virtual playground"
     echo "    $VAMOS -c                   # create virtual Python environment"
     echo "    $VAMOS -d                   # deactivate virtual playground"
@@ -66,10 +68,11 @@ if [ "$*" == "---help" ]; then
         # from here we cannot spoil the caller's environment
 
     VAMOS=$_VAMOS
+    APP="bash $_APP"
 
-    bash $_VAMOS -?                  # usage
+    $APP -?                  # usage
     echo ""
-    $VAMOS -@G "print colored text:"
+    $APP -@G "print colored text:"
     echo "    $VAMOS -@R ...              # echo red text with newline"
     echo "    $VAMOS -@G ...              # echo green text with newline"
     echo "    $VAMOS -@Y ...              # echo yellow text with newline"
@@ -86,12 +89,12 @@ if [ "$*" == "---help" ]; then
     echo "    $VAMOS -@c ...              # print cyan text without newline"
     echo "    $VAMOS -@n ...              # print normal text without newline"
     echo ""
-    $VAMOS -@G "other:"
+    $APP -@G "other:"
     echo "    $VAMOS --gurl <tag> <path>  # convert github tag to github raw URL"
     echo "    $VAMOS --gtag <url>         # convert github URL to github tag"
     echo "    $VAMOS --version            # print version"
     echo ""
-    $VAMOS -@G "curl from  github:"
+    $APP -@G "curl from  github:"
     echo "    $VAMOS --curl <tag> <path>  # curl from github"
     echo "    $VAMOS --curl @jmpstart/vamos main/util/ec"
 
@@ -114,13 +117,15 @@ if [ "$*" == "" ]; then
         vamos -@g '. vamos'
         vamos -@n '` (dot-space-vamos)\n'
     else
-        alias vamos="source vamos"
-        source $_VAMOS -as     # activate
+        alias vamos="source $_APP"
+        alias wd="source $_APP -w"
+        source $_APP -as     # activate
     fi
 
     unset _SOURCED
     unset _VAMOS_VERSION  # cleanup, since we might run in sourced mode
     unset _VAMOS     # cleanup, since we might run in sourced mode
+    unset _APP
     return 0 2>/dev/null || exit 0  # safe return/exit
 fi
 
@@ -134,7 +139,7 @@ if [ "$*" == "-a" ] || [ "$*" == "-as" ] \
     (return 0 2>/dev/null) && _SOURCED=1 || _SOURCED=0  # determine _SOURCED
 
     if [ "$_SOURCED" == 0 ]; then
-        bash $_VAMOS ---unsourced "$*"
+        bash $_APP ---unsourced "$*"
         unset _SOURCED
         exit 1
     fi
@@ -144,21 +149,22 @@ if [ "$*" == "-a" ] || [ "$*" == "-as" ] \
     elif [ -d .venv ]; then
         source .venv/bin/activate
     else
-        _vENV=`$_VAMOS -e` # return virtual environment directory
+        #_vENV=`$_VAMOS -e` # return virtual environment directory
+        _vENV=`$_VAMOS -p` # return virtual environment directory
 
         if [ "$_vENV" != "" ]; then
             #echo "source $_FILE"
             deactivate 2>/dev/null
             source $_vENV/bin/activate
         elif [ -d ".vamos" ]; then
-            bash $_VAMOS -cv     # create (verbose) virtual environment, no unset
-            source $_VAMOS -an   # activate virtual environment, no unset
-            source $_VAMOS -s    # startup playground
+            bash $_APP -cv     # create (verbose) virtual environment, no unset
+            source $_APP -an   # activate virtual environment, no unset
+            source $_APP -s    # startup playground
         elif [ "$*" != "-as" ] && [ "$*" != "-ans" ]; then
-            bash $_VAMOS -@r 'error: no virtual environment directory'
-            bash $_VAMOS -@n ' (create with: '
-            bash $_VAMOS -@g "$_VAMOS -c"
-            bash $_VAMOS -@N ')'
+            bash $_APP -@r 'error: no virtual environment directory'
+            bash $_APP -@n ' (create with: '
+            bash $_APP -@g "$_VAMOS -c"
+            bash $_APP -@N ')'
         fi
 
         unset _vENV
@@ -167,6 +173,7 @@ if [ "$*" == "-a" ] || [ "$*" == "-as" ] \
     if [ "$*" != "-an" ] && [ "$*" != "-ans" ]; then
         unset _VAMOS_VERSION  # cleanup, since we might run in sourced mode
         unset _VAMOS     # cleanup, since we might run in sourced mode
+        unset _APP
     fi
     return 0 2>/dev/null || exit 0  # safe return/exit
 fi
@@ -179,7 +186,7 @@ fi
 if [ "$*" == "-d" ] || [ "$*" == "-dn" ]; then
     (return 0 2>/dev/null) && _SOURCED=1 || _SOURCED=0  # determine _SOURCED
     if [ "$_SOURCED" == 0 ]; then
-        bash $_VAMOS ---unsourced "$*"
+        bash $_APP ---unsourced "$*"
         unset _SOURCED
         exit 1
     fi
@@ -189,6 +196,7 @@ if [ "$*" == "-d" ] || [ "$*" == "-dn" ]; then
     if [ "$*" != "-dn" ]; then
         unset _VAMOS_VERSION  # cleanup, since we might run in sourced mode
         unset _VAMOS     # cleanup, since we might run in sourced mode
+        unset _APP
     fi
     return 0 2>/dev/null || exit 0  # safe return/exit
 fi
@@ -200,24 +208,25 @@ fi
 if [ "$*" == "-r" ]; then
     (return 0 2>/dev/null) && _SOURCED=1 || _SOURCED=0  # determine _SOURCED
     if [ "$_SOURCED" == 0 ]; then
-        bash $_VAMOS ---unsourced "$*"
+        bash $_APP ---unsourced "$*"
         unset _SOURCED
         exit 1
     fi
 
-    _vENV=`bash $_VAMOS -e`
+    _vENV=`bash $_APP -e`
 
     if [ "$_vENV" == "" ]; then
-        bash $_VAMOS -@R "error: $_VAMOS -r => no virtual Python environment!"
+        bash $_APP -@R "error: $_VAMOS -r => no virtual Python environment!"
     else
-        source $_VAMOS -dn       # deactivate venv, no unset
+        source $_APP -dn       # deactivate venv, no unset
         rm -rf $_vENV
-        bash $_VAMOS -@G "$_vENV successfully removed"
+        bash $_APP -@G "$_vENV successfully removed"
     fi
 
     unset _vENV
     unset _VAMOS_VERSION  # cleanup, since we might run in sourced mode
     unset _VAMOS     # cleanup, since we might run in sourced mode
+    unset _APP
     return 0 2>/dev/null || exit 0  # safe return/exit
 fi
 
@@ -228,23 +237,26 @@ fi
 if [ "$*" == "-s" ]; then
     (return 0 2>/dev/null) && _SOURCED=1 || _SOURCED=0  # determine _SOURCED
     if [ "$_SOURCED" == 0 ]; then
-        bash $_VAMOS ---unsourced "$*"
+        bash $_APP ---unsourced "$*"
         unset _SOURCED
         exit 1
     fi
 
-    bash $_VAMOS -@C 'setup playground'
+    bash $_APP -@C 'setup playground'
 
     _vENV=`bash vamos -e`
 
     if [ -f .vamos/etc/setup ]; then
         if [ "$_vENV" != "" ] && [ "$VIRTUAL_ENV" != "" ]; then
-            bash $_VAMOS -@Y 'source .vamos/etc/setup'
+            bash $_APP -@Y 'source .vamos/etc/setup'
             source .vamos/etc/setup
         fi
     fi
 
     unset _vENV
+    unset _VAMOS_VERSION  # cleanup, since we might run in sourced mode
+    unset _VAMOS     # cleanup, since we might run in sourced mode
+    unset _APP
     return 0 2>/dev/null || exit 0  # safe return/exit
 fi
 
@@ -253,44 +265,79 @@ fi
 #===============================================================================
 
 if [ "$1" == "-w" ]; then
+    #echo 'processsing -w ...' $*
     (return 0 2>/dev/null) && _SOURCED=1 || _SOURCED=0  # determine _SOURCED
     if [ "$_SOURCED" == 0 ]; then
-        bash $_VAMOS ---unsourced "$*"
+        bash $_APP ---unsourced "$*"
         unset _SOURCED
+        unset _APP
+        unset _VAMOS
+        unset _VAMOS_VERSION
         exit 1
+    else
+        unset _SOURCED
     fi
+
+        # workdir must have a value, otherwise initialize with $HOME
+
+    if [ "$WORKDIR" == "" ]; then export WORKDIR=$HOME; fi
+
+        # step 1: if arg == '.' then mind current path as working directory
+
+    if [ "$2" == "." ]; then
+        export WORKDIR=`pwd`
+        bash $_APP -@C 'new working directory:'
+        bash $_APP -@G $WORKDIR
+        ls
+        return 0
+    fi
+    #echo 'processsing' $*
+
+        # step 2: change worekdir to $1 or $WORKDIR
 
     shift;  _ERR=0
-    cd $* || _ERR=1
-
-    if [ "$_ERR" == 0 ]; then
-        _HERE=`pwd`
-        _APP=`which $_VAMOS`   # need this for some weird reason
-#echo 'HERE:' $_HERE
-        while [ "`pwd`" != '/' ]
-        do
-#echo 'THERE:' `pwd`
-            _vENV=`bash $_APP -e`
-#echo '_VENV:' $_vENV
-            if [ "$_vENV" != "" ]; then
-                source $_VAMOS -as
-                cd /
-            else
-                cd ..
-                if [ "`pwd`" == '/' ]; then
-                    deactivate 2>/dev/null #
-                    #source $_VAMOS -d   # deactivate (not in a playground)
-                fi
-            fi
-        done
-        cd $_HERE
+    if [ "$1" != "" ]; then
+        cd $1 || _ERR=1
+    else
+        cd $WORKDIR || _ERR=1
     fi
 
-    unset _APP
-    unset _HERE
-    unset _vENV
+    if [ "$_ERR" != 0 ]; then
+        unset _APP
+        unset _VAMOS
+        unset _VAMOS_VERSION
+        return 1
+    fi
     unset _ERR
-    unset _SOURCED
+
+        # step 3: print directory overview
+
+    bash $_APP -@Y `pwd`
+    ls
+
+        # step 4: if a playground is detected which has not been setup
+        # then print a warning:
+
+    _vENV=`bash $_APP -e`
+    if [ -d .vamos ] && [ "$_vENV" == "" ]; then
+        bash $_APP -@r 'unactivated playground discovered:'
+        bash $_APP -@n " => setup with '"
+        bash $_APP -@g "$_VAMOS"
+        bash $_APP -@n "'\n"
+    fi
+
+        # step 5: activate/deactivate playground in parent hierarchy
+
+    _vENV=`bash $_APP -p`
+    if [ "$_vENV" != "" ]; then
+        source $_APP -a              # activate playground
+    else
+        source $_APP -d              # deactivate playground
+    fi
+
+    unset _vENV;  unset _ERR
+    unset _VAMOS_VERSION  # cleanup, since we might run in sourced mode
+    unset _VAMOS     # cleanup, since we might run in sourced mode
     return 0 2>/dev/null || exit 0  # safe return/exit
 fi
 
@@ -306,7 +353,7 @@ if [ "$*" == "@$_TAG" ]; then  # means $_TAG begins with a '@' character
     (return 0 2>/dev/null) && _SOURCED=1 || _SOURCED=0  # determine _SOURCED
 
     if [ "$_SOURCED" == 0 ]; then
-        bash $_VAMOS ---unsourced '@...'
+        bash $_APP ---unsourced '@...'
         unset _TAG;  unset _SOURCED
         exit 1
     fi
@@ -329,7 +376,7 @@ if [ "$*" == "@$_TAG" ]; then  # means $_TAG begins with a '@' character
             #echo 'https://github.com prefix'
             _URL="$*";  #_URL=${_URL#"@"}
             _REPO=${_URL#*/}
-            bash $_VAMOS -@Y "git clone $_URL"
+            bash $_APP -@Y "git clone $_URL"
             git clone $_URL
         else                            # short repo _URL
             TAG="$*";
@@ -338,16 +385,19 @@ if [ "$*" == "@$_TAG" ]; then  # means $_TAG begins with a '@' character
 
             _URL=https://github.com/"$TAG.git"
             #echo 'no https://github.com prefix'
-            bash $_VAMOS -@Y "git clone $_URL"
+            bash $_APP -@Y "git clone $_URL"
             git clone $_URL
         fi
 
-        bash $_VAMOS -@Y "cd $_REPO"
+        bash $_APP -@Y "cd $_REPO"
         cd $_REPO
 
-        source $_VAMOS -as  # activate (setup) playground
+        source $_APP -as  # activate (setup) playground
     fi
 
+    unset _VAMOS_VERSION  # cleanup, since we might run in sourced mode
+    unset _VAMOS     # cleanup, since we might run in sourced mode
+    unset _APP
     return 0 2>/dev/null || exit 0  # safe return/exit
 fi
 
@@ -367,7 +417,13 @@ unset _SOURCED
 (return 0 2>/dev/null) && _SOURCED=1 || _SOURCED=0  # determine _SOURCED
 if [ "$_SOURCED" == 1 ]; then  # is this script running as a sourced script?
     unset _SOURCED
-    bash vamos $* || return 1  # execute as child process !!!
+
+#echo 'launch child ...'
+    bash $_APP $* || return 1  # execute as child process !!!
+
+    unset _VAMOS_VERSION  # cleanup, since we might run in sourced mode
+    unset _VAMOS     # cleanup, since we might run in sourced mode
+    unset _APP
     return 0
 fi
 unset _SOURCED
@@ -390,7 +446,7 @@ unset _SOURCED
 #===============================================================================
 #===============================================================================
 
-APP=$_VAMOS
+APP=$_APP
 VERSION=$_VAMOS_VERSION
 
 ECHO="bash $APP"
@@ -415,15 +471,15 @@ NORMAL='\x1b[0m'
 #===============================================================================
 
 if [ "$1" == "-@R" ]; then
-    shift;  printf $RED;  echo "$*";  printf $NORMAL;  exit 0
+    shift;  printf $RED;     echo "$*";  printf $NORMAL;  exit 0
 fi
 
 if [ "$1" == "-@G" ]; then
-    shift;  printf $GREEN;  echo "$*";  printf $NORMAL;  exit 0
+    shift;  printf $GREEN;   echo "$*";  printf $NORMAL;  exit 0
 fi
 
 if [ "$1" == "-@B" ]; then
-    shift;  printf $BLUE;  echo "$*";  printf $NORMAL;  exit 0
+    shift;  printf $BLUE;    echo "$*";  printf $NORMAL;  exit 0
 fi
 
 if [ "$1" == "-@Y" ]; then
@@ -431,11 +487,11 @@ if [ "$1" == "-@Y" ]; then
 fi
 
 if [ "$1" == "-@C" ]; then
-    shift;  printf $CYAN;  echo "$*";  printf $NORMAL;  exit 0
+    shift;  printf $CYAN;    echo "$*";  printf $NORMAL;  exit 0
 fi
 
 if [ "$1" == "-@M" ]; then
-    shift;  printf $MAGENTA;  echo "$*";  printf $NORMAL;  exit 0
+    shift;  printf $MAGENTA; echo "$*";  printf $NORMAL;  exit 0
 fi
 
 if [ "$1" == "-@N" ]; then
@@ -663,17 +719,22 @@ if [ "$*" == "-i" ]; then
 fi
 
 #===============================================================================
-# print virtual environment directory path
+# print virtual environment directory path, searching in the parent hierarchy
+# of the current directory (i.e., current dir, parent of current dir and so on)
 #===============================================================================
 
 if [ "$*" == '-p' ]; then
-    VENV=`bash $APP -e`
-    if [ "$VENV" == "" ]; then
-        exit 0                      # nothing to do
-    fi
-
-    echo `pwd`/$VENV
-    exit 0
+    while [ "`pwd`" != '/' ]
+    do
+        VENV=`bash $APP -e`
+        if [ "$VENV" != "" ]; then
+            echo `pwd`/$VENV
+            exit 0
+        else
+            cd ..
+        fi
+    done
+    exit 1
 fi
 
 #===============================================================================
