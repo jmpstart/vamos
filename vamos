@@ -623,7 +623,9 @@ if [ "$*" == "-u" ] || [ "$*" == "--uninstall" ]; then
     rm $_APP || ERR=2
 
     if [ "$ERR" == 0 ]; then
-        $ECHO -@R "$APP (version $VERSION) succesfully uninstalled"
+        printf $GREEN
+        echo "$APP (version $VERSION) succesfully uninstalled"
+        printf $NORMAL
     fi
 
     exit 0
