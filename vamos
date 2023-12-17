@@ -680,10 +680,10 @@ if [ "$*" != "" ]; then
 
         if [ -f .vamos/etc/setup ]; then
             $ECHO -@Y 'source .vamos/etc/setup'
-            source .vamos/etc/startup ''
+            source .vamos/etc/setup ''
             $ECHO -@G "strtup complete"
         else
-            $ECHO -@R 'error: cannot find .vamos/bin/startup script'
+            $ECHO -@R 'error: cannot find .vamos/etc/setup script'
         fi
     fi
 
