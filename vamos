@@ -49,6 +49,7 @@ if [ "$*" == "---usage" ]; then
     echo "    $VAMOS -r                   # remove virtual Python environment"
     echo "    $VAMOS -s                   # startup playground"
     echo "    $VAMOS -u                   # uninstall $VAMOS"
+    echo "    $VAMOS -w                   # change working directory
 
     exit 0
 fi
@@ -263,6 +264,58 @@ if [ "$*" == "-s" ]; then
     fi
 
     unset _vENV
+    return 0 2>/dev/null || exit 0  # safe return/exit
+fi
+
+#===============================================================================
+# change working environment
+#===============================================================================
+
+if [ "$1" == "-w" ]; then
+    (return 0 2>/dev/null) && _SOURCED=1 || _SOURCED=0  # determine _SOURCED
+    if [ "$_SOURCED" == 0 ]; then
+        $_VAMOS -@r "error: unsourced '$_VAMOS -w'"
+        $_VAMOS -@n " => use '"
+        $_VAMOS -@g ". $_VAMOS -w"
+        $_VAMOS -@n "' or '"
+        $_VAMOS -@g ". $_VAMOS; $_VAMOS -w"
+        $_VAMOS -@n "'\n"
+        unset _SOURCED
+        exit 1
+    fi
+
+    shift
+    _ERR=0
+    cd $* || _ERR=1
+
+    if [ "$_ERR" == 0 ]; then
+        _HERE=`pwd`
+        _APP=`which $_VAMOS`   # need this for some weird reason
+#echo 'HERE:' $_HERE
+        while [ "`pwd`" != '/' ]
+        do
+#echo 'THERE:' `pwd`
+            _vENV=`bash $_APP -e`
+#echo '_VENV:' $_vENV
+            if [ "$_vENV" != "" ]; then
+                source $_VAMOS -as
+                cd /
+            else
+                cd ..
+                if [ "`pwd`" == '/' ]; then
+                    deactivate 2>/dev/null #
+                    #source $_VAMOS -d   # deactivate (not in a playground)
+                fi
+            fi
+        done
+        cd $_HERE
+    fi
+
+    unset _APP
+    unset _HERE
+    unset _vENV
+    unset _ERR
+    unset _SOURCED
     return 0 2>/dev/null || exit 0  # safe return/exit
 fi
 
