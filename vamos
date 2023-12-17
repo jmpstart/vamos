@@ -157,7 +157,7 @@ if [ "$*" == "-a" ] || [ "$*" == "-as" ] \
             bash $_VAMOS -cv     # create (verbose) virtual environment, no unset
             source $_VAMOS -an   # activate virtual environment, no unset
             source $_VAMOS -s    # startup playground
-        elif [ "$*" != "as" ] && [ "$*" != "ans" ]; then
+        elif [ "$*" != "-as" ] && [ "$*" != "-ans" ]; then
             bash $_VAMOS -@r 'error: no virtual environment directory'
             bash $_VAMOS -@n ' (create with: '
             bash $_VAMOS -@g "$_VAMOS -c"
