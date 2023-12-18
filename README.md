@@ -2,7 +2,7 @@
 
 --------------------------------------------------------------------------------
 
-# Curl Installation Formula
+# Curl Installation Formula 
 
 In a BASH shell with installed `git`, `curl` and `python3` execute the following
 one-liner to quick install `vamos`.
