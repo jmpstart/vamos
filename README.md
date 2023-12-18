@@ -2,13 +2,13 @@
 
 --------------------------------------------------------------------------------
 
-# Curl Installation Formula 
+# Curl Installation Formula
 
 In a BASH shell with installed `git`, `curl` and `python3` execute the following
 one-liner to quick install `vamos`.
 
 ```
-  curl -s https://raw.githubusercontent.com/jmpstart/vamos/main/install >~vamos; . ~vamos -!
+  curl -s https://raw.githubusercontent.com/jmpstart/vamos/main/vamos >~vamos; . ~vamos -!
 ```
 
 When you are prompted for your superuser password type the password and check for a successful installation message.
@@ -251,7 +251,7 @@ We need a Python version >= 3.10.0. To check the current Python version invoke:
 ```
 
 If the installed Python version is less than 3.10.0 you need to upgrade Python.
-One way to do this is with the PPA repository from 
+One way to do this is with the PPA repository from
 [Deadsnake](https://zomro.com/blog/faq/299-kak-ustanovit-python-310-na-ubuntu-2004#:~:text=Install%20Python%203.10%20from%20PPA,dependencies%20to%20add%20the%20repository).
 
 ```
@@ -259,7 +259,7 @@ One way to do this is with the PPA repository from
     $ sudo apt install python3.10                  # install Python 3.10
 ```
 
-After installation of Python 3.10 check the version again. It should be greater than or equal 
+After installation of Python 3.10 check the version again. It should be greater than or equal
 to Python 3.10.0!
 
 ```
