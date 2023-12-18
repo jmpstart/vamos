@@ -238,7 +238,7 @@ if [ "$*" == "-i" ] || [ "$*" == "-is" ] \
         bash ~vamos ---install   # copy ./_vamos to /usr/local/bin
     fi
 
-    if [ "$*" != "-ik" ] && [ "$*" != "-isk" ]
+    if [ "$*" != "-ik" ] && [ "$*" != "-isk" ]; then
         rm $_TARGET
     fi
 
