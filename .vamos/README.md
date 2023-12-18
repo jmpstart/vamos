@@ -433,6 +433,37 @@ To test package installation we perform the following steps:
 ```
 
 
+# Appendix
+
+## To Prepare Windows WSL for `vamos` readiness:
+
+=> use an Ubuntu installation and invoke in a BASH shell:
+
+```
+    $ sudo apt update    # according to Zephyr installation
+    $ sudo apt upgrade   # according to Zephyr installation
+    $
+    $     # check python installation
+    $
+    $ python3 --version
+    Python 3.10.12
+    $
+    $     # install python3 pip
+    $
+    $ sudo apt install --no-install-recommends python3-pip
+    $ pip list
+    ...
+    $ sudo apt install python3.10-venv
+    $
+    $     # test creation of a venv
+    $   
+    $ python3 -m venv venv
+    $ source venv/bin/activate   # activates venv
+    (venv) $ rm -rf venv; deactivate
+    $   
+```
+
+
 # References
 
 [1] Philipp Acsany: Real PythonDependency Management With Python Poetry;

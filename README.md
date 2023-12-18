@@ -196,4 +196,56 @@ are located.
 
 # Appendix - Troubleshooting
 
-... to be done
+## On Windows WSL (Windows Subsystem for Linux)
+
+On Windows 10 or higher versions you can install a Windows Subsystem for
+Linux running an Ubuntu with a Bash shell. To get ready you need to perform
+three steps:
+
+```
+    Step 1: install WSL
+    Step 2: upgrade your Ubuntu
+    Step 3: get your Python environment ready
+```
+
+## Step 1: Install WSL
+
+=> follow: https://learn.microsoft.com/en-us/windows/wsl/install
+
+## Step 2: Upgrade Your Ubuntu
+
+In a BASH shell enter the following commands which will upgrade your Ubuntu
+installation in order to support a Python system installation with a version
+greater than or equal to 3.10.12.
+
+```
+    $ sudo apt update    # according to Zephyr installation
+    $ sudo apt upgrade   # according to Zephyr installation
+```
+
+## Step 3: Get your Python Environment Ready
+
+```
+    $ python3 --version           # should be 3.10.12 or higher
+    Python 3.10.12
+    $
+    $     # install python3 pip
+    $
+    $ sudo apt install --no-install-recommends python3-pip
+    $ sudo apt install python3.10-venv
+```
+
+Finally test, whether you can successfully create a virtual Python environment:
+
+```
+    $ python3 -m venv venv
+    $ source venv/bin/activate    # activates venv
+    (venv) $                      # on success you see a `(venv)` in the prompt
+```
+
+To clean this up enter:
+
+```   
+    (venv) $ deactivate           # deactivate virtual python environment
+    $ rm -rf venv                 # remove `venv` directory
+```
