@@ -267,12 +267,13 @@ to Python 3.10.0!
     Python 3.10.13
 ```
 
-Having checked a proper Python version we make Python3.10 the standard python3 interpreter:
+Having checked a proper Python version we make Python3.10 the standard python3 interpreter
+by overwriting the python3 soft link:
 
 ```
     $ which python3.10
     /usr/bin/python3.10
-    ln -sf `which python3.10` /usr/bin/python3   # invoking python3 will now launch python3.10
+    $ ln -sf `which python3.10` /usr/bin/python3   # invoking python3 will now launch python3.10
 ```
 
 Finally we need to have `pip`, the Python package manager, and a Python package for
