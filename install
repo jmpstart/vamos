@@ -231,8 +231,10 @@ if [ "$*" = "-i" ] || [ "$*" = "-is" ]; then
 
         # install in /usr/local/bin
 
-    bash ~vamos ---install   # copy ./_vamos to /usr/local/bin
-    #rm $_TARGET
+    if [ "$_ERR" == 0 ]; then
+        bash ~vamos ---install   # copy ./_vamos to /usr/local/bin
+        rm $_TARGET
+    fi
 
     unset _PYDIR
     unset _GITRAW
