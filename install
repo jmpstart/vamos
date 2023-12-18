@@ -324,9 +324,9 @@ if [ "$*" == "---install" ]; then
         cp ./_vamos /usr/local/bin/vamos 2>/dev/null || _OK=0  # first trial
 
         if [ "$_OK" == 0 ]; then   # if first trial did not work we use sudo
-            fprintf $_YELLOW
+            printf $_YELLOW
             echo 'installing `vamos` in /usr/local/bin ...'
-            fprintf $_NORMAL
+            printf $_NORMAL
             sudo cp ./_vamos /usr/local/bin/vamos || _OK=0
         fi
 
@@ -349,9 +349,9 @@ if [ "$*" == "---uninstall" ]; then
         rm /usr/local/bin/vamos 2>/dev/null || _OK=0   # first trial
 
         if [ "$_OK" == 0 ]; then   # if first trial did not work we use sudo
-            fprintf $_YELLOW
+            printf $_YELLOW
             echo 'removing `vamos` from /usr/local/bin ...'
-            fprintf $_NORMAL
+            printf $_NORMAL
             sudo rm /usr/local/bin/vamos || _OK=0
         fi
 
