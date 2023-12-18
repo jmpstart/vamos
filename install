@@ -77,8 +77,7 @@ if [ "$*" = "" ] || [ "$*" == "-k" ] || [ "$*" == "-s" ]; then
     #    echo $*
     #}
 
-    _PYDIR=`bash ~vamos -d`
-    alias vamos="source $_PYDIR/vamos"
+    alias vamos="source /usr/local/bin/vamos"
 
         # install $_PYDIR/vamos
 
@@ -90,8 +89,6 @@ if [ "$*" = "" ] || [ "$*" == "-k" ] || [ "$*" == "-s" ]; then
         bash ~vamos -i
     fi
         # cleanup
-
-    unset _PYDIR
 
     if [ "$*" != "-k" ]; then  # if no keep option
         rm -f ~vamos
@@ -234,7 +231,7 @@ if [ "$*" == "-i" ] || [ "$*" == "-is" ] \
 
         # install in /usr/local/bin
 
-    if [ "$_ERR" == 0 ]; then 
+    if [ "$_ERR" == 0 ]; then
         bash ~vamos ---install   # copy ./_vamos to /usr/local/bin
     fi
 
