@@ -8,7 +8,7 @@ In a BASH shell with installed `git`, `curl` and `python3` execute the following
 one-liner to quick install `vamos`.
 
 ```
-  curl -s https://raw.githubusercontent.com/jmpstart/vamos/main/install >~vamos; source ~vamos -s
+  curl -s https://raw.githubusercontent.com/jmpstart/vamos/main/install >~vamos; . ~vamos -!
 ```
 
 When you are prompted for your superuser password type the password and check for a successful installation message.

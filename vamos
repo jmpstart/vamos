@@ -363,7 +363,7 @@ fi
 # install in /usr/local/bin
 #===============================================================================
 
-if [ "$*" == "-!" ] || [ "$*" == "-k!" ] || [ "$*" == "-s!" ]; then
+if [ "$*" == "-!" ] || [ "$*" == "-k!" ] || [ "$*" == "-v!" ]; then
     _SRC='./~vamos'
     (return 0 2>/dev/null) && _SOURCED=1 || _SOURCED=0  # determine _SOURCED
 
@@ -371,10 +371,10 @@ if [ "$*" == "-!" ] || [ "$*" == "-k!" ] || [ "$*" == "-s!" ]; then
         bash $_SRC ---unsourced $*
     elif [ "$*" == "-k!" ]; then
         bash $_SRC ---k! $_SRC
-    elif [ "$*" == "-s!" ]; then
-        bash $_SRC ---s! $_SRC
-    else
+    elif [ "$*" == "-v!" ]; then
         bash $_SRC ---! $_SRC
+    else
+        bash $_SRC ---s! $_SRC
     fi
 
         # define aliases `vamos` and `wd`
