@@ -16,7 +16,7 @@ in the appendix.
 
 --------------------------------------------------------------------------------
 
-# Vamos - A Playground Managing Tool
+# Rapid Playground Setup with Vamos
 
 Can we download a repository from git hub and setup a playground in a similar
 simple manner as we are used from installing a smartphone app? Yes we can!
