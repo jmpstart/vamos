@@ -84,6 +84,8 @@ if [ "$*" = "" ] || [ "$*" == "-k" ] || [ "$*" == "-s" ]; then
 
     if [ "$*" == "-s" ]; then     # silent
         bash ~vamos -is
+    elif [ "$*" == "-k" ]; then   # keep _vamos file
+        bash ~vamos -ik
     else
         bash ~vamos -i
     fi
@@ -144,7 +146,8 @@ fi
 # $ curl -s $GITRAW/ihux/vamos/main/install >~vamos; source ~vamos
 #===============================================================================
 
-if [ "$*" = "-i" ] || [ "$*" = "-is" ]; then
+if [ "$*" == "-i" ] || [ "$*" == "-is" ] \
+                    || [ "$*" == "-ik" ] || [ "$*" == "-isk" ]; then
     #_PYDIR=`bash ~vamos -d`
     _PYDIR='.'  # current directory
     _ERR=0
@@ -163,7 +166,7 @@ if [ "$*" = "-i" ] || [ "$*" = "-is" ]; then
         # install vamos in PYDIR
 
     if [ "$_ERR" == 0 ]; then
-        if [ "$*" != "-is" ]; then
+        if [ "$*" != "-is" ] && [ "$*" != "-isk" ]; then
             printf $_CYAN
             echo "installing vamos in $_PYDIR ..."
             printf $_NEUTRAL
@@ -173,7 +176,7 @@ if [ "$*" = "-i" ] || [ "$*" = "-is" ]; then
         _URL=$_GITRAW/$_REPO/main/vamos
         _TARGET=$_PYDIR/_vamos
 
-        if [ "$*" != "-is" ]; then
+        if [ "$*" != "-is" ] && [ "$*" != "-isk" ]; then
             printf $_YELLOW
             echo "installing vamos in $_PYDIR ..."
             printf $_NEUTRAL
@@ -181,13 +184,13 @@ if [ "$*" = "-i" ] || [ "$*" = "-is" ]; then
 
            # actual installation
 
-        if [ "$*" != "-is" ]; then
+        if [ "$*" != "-is" ] && [ "$*" != "-isk" ]; then
             printf $_YELLOW
             echo "curl $_URL >$_TARGET"
             printf $_NEUTRAL
         fi
 
-        if [ "$*" != "-is" ]; then
+        if [ "$*" != "-is" ] && [ "$*" != "-isk" ]; then
             curl $_URL >$_TARGET || _ERR=1
         else
             curl -s $_URL >$_TARGET || _ERR=1
@@ -197,7 +200,7 @@ if [ "$*" = "-i" ] || [ "$*" = "-is" ]; then
         # make executable
 
     if [ "$_ERR" == 0 ]; then
-        if [ "$*" != "-is" ]; then
+        if [ "$*" != "-is" ] && [ "$*" != "-isk" ]; then
             printf $_YELLOW
             echo "chmod +x $_TARGET"
             printf $_NEUTRAL
@@ -233,6 +236,9 @@ if [ "$*" = "-i" ] || [ "$*" = "-is" ]; then
 
     if [ "$_ERR" == 0 ]; then
         bash ~vamos ---install   # copy ./_vamos to /usr/local/bin
+    fi
+
+    if [ "$*" != "-ik" ] && [ "$*" != "-isk" ]
         rm $_TARGET
     fi
 
