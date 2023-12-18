@@ -440,6 +440,8 @@ To test package installation we perform the following steps:
 => use an Ubuntu installation and invoke in a BASH shell:
 
 ```
+    $ # start with an upgrade of your Ubuntu
+    $
     $ sudo apt update    # according to Zephyr installation
     $ sudo apt upgrade   # according to Zephyr installation
     $
