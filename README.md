@@ -1,5 +1,7 @@
 ![Vamos](./.vamos/vamos-a-la-playa.jpg)
 
+--------------------------------------------------------------------------------
+
 # Curl Installation Formula
 
 In a BASH shell with installed `git`, `curl` and `python3` execute the following
@@ -12,7 +14,7 @@ one-liner to quick install `vamos`
 and check for a successful installation message, otherwise follow the troublehooting
 in the appendix.
 
-----------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 # Vamos - A Playground Managing Tool
 
@@ -72,6 +74,8 @@ are executed (and in which way), when invoking the aliases:
     alias lol='bash .vamos/bin/lol'
 ```
 
+--------------------------------------------------------------------------------
+
 # Vamos - A Playground Manager
 
 `Vamos` is a so-called `play ground manager` for setting up git repository based
@@ -89,6 +93,7 @@ following tasks:
 * management of simple databases, e.g. to define shorthands for working
   directories, IoT-board types, interface configurations
 
+--------------------------------------------------------------------------------
 
 # How Vamos Works
 
@@ -114,6 +119,8 @@ of `$VENV` it is concluded, that the playground has not yet been setup.
 with a valid `$VENV` directory found in the current directory, or the parent of the
 current directory, or else in the parent of the parent directory and so forth.
 
+
+--------------------------------------------------------------------------------
 
 # How Vamos is Implemented
 
@@ -150,7 +157,7 @@ one of the two commands above to the bASh startup scripts, which is `~/.bashprof
 invokes `source vamos` such that an additional sourcing is not required for an ongoing BASH session.
 
 
-
+--------------------------------------------------------------------------------
 
 # How Vamos Works in Detail
 
@@ -169,6 +176,8 @@ has beens launched with `source vamos` (or equivalently `. vamos`).
 stuff and, if provided, executes script `.vamos/bin/setup` to setup the playground
 with proper actions.
 
+
+--------------------------------------------------------------------------------
 
 # Installing Vamos
 
@@ -193,6 +202,8 @@ To install `vamos` enxecute the following `curl` command:
 
 This installs a `vamos` (BASH) script in the directory where system python3 binaries
 are located.
+
+--------------------------------------------------------------------------------
 
 # Appendix - Troubleshooting
 
