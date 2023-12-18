@@ -300,7 +300,7 @@ if [ "$1" == "-w" ]; then
 
         # step 1: if arg == '.' then mind current path as working directory
 
-    if [ "$2" == "." ]; then
+    if [ "$1" == "." ]; then
         export WORKDIR=`pwd`
         bash $_APP -@C 'new working directory:'
         bash $_APP -@G $WORKDIR
