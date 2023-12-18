@@ -197,12 +197,6 @@ if [ "$*" == "-i" ] || [ "$*" == "-is" ] \
         # make executable
 
     if [ "$_ERR" == 0 ]; then
-        if [ "$*" != "-is" ] && [ "$*" != "-isk" ]; then
-            printf $_YELLOW
-            echo "chmod +x $_TARGET"
-            printf $_NORMAL
-        fi
-
         chmod +x $_TARGET || _ERR=1
     fi
 
