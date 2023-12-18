@@ -145,7 +145,8 @@ fi
 #===============================================================================
 
 if [ "$*" = "-i" ] || [ "$*" = "-is" ]; then
-    _PYDIR=`bash ~vamos -d`
+    #_PYDIR=`bash ~vamos -d`
+    _PYDIR='.'  # current directory
     _ERR=0
 
         # check if there is a viable PYDIR
@@ -228,6 +229,10 @@ if [ "$*" = "-i" ] || [ "$*" = "-is" ]; then
         unset _MORE
     fi
 
+        # install in /usr/local/bin
+
+    bash ~vamos ---install   # copy to /usr/local/bin
+    #rm $_TARGET
 
     unset _PYDIR
     unset _GITRAW
@@ -242,7 +247,8 @@ fi
 #===============================================================================
 
 if [ "$*" = "-u" ] || [ "$*" = "-us" ] || [ "$*" = "-uk" ]; then
-    _PYDIR=`bash ~vamos -D`
+    #_PYDIR=`bash ~vamos -D`
+    _PYDIR=/usr/local/bin
     _TARGET=$_PYDIR/vamos
     _ERR=0
         # check if there is a viable PYDIR
@@ -271,9 +277,11 @@ if [ "$*" = "-u" ] || [ "$*" = "-us" ] || [ "$*" = "-uk" ]; then
         echo "rm $_TARGET" || _ERR=1
         printf $_NEUTRAL
 
-        rm  $_TARGET
+        #rm  $_TARGET
+        bash ~vamos ---uninstall
 
-        _CHECK=`bash ~vamos -D`
+        #_CHECK=`bash ~vamos -D`
+        _CHECK=`which vamos`
         if [ "$_CHECK" != "" ]; then
             printf $_RED
             echo "error ~vamos -u: uninstallation of vamos failed" || _ERR=1

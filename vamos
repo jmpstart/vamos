@@ -829,7 +829,8 @@ if [ "$*" == "-u" ] || [ "$*" == "--uninstall" ]; then
         rm ./~vamos 2>/dev/null || ERR=1
     fi
 
-    rm $_APP || ERR=2
+    #rm $_APP || ERR=2
+    bash $_APP ---uninstall
 
     if [ "$ERR" == 0 ]; then
         printf $GREEN
@@ -846,6 +847,24 @@ fi
 
 if [ "$*" == "--version" ]; then
     echo $VERSION
+    exit 0
+fi
+
+#===============================================================================
+# uninstall helper: remove /usr/local/bin/vamos
+#===============================================================================
+
+if [ "$*" == "---uninstall" ]; then
+    if [ -f /usr/local/bin/vamos ]; then
+        echo 'removing `vamos` from /usr/local/bin ...'
+        sudo rm /usr/local/bin/vamos && exit 0
+
+        echo "$VAMOS ---uninstall: cannot remove /usr/local/bin/vamos"
+        exit 1
+    else
+        echo "$VAMOS ---uninstall: no file /usr/local/bin/vamos"
+        exit 1
+    fi
     exit 0
 fi
 
