@@ -44,7 +44,6 @@ if [ "$*" == "---usage" ]; then
     echo "    $VAMOS -c                   # create virtual Python environment"
     echo "    $VAMOS -d                   # deactivate virtual playground"
     echo "    $VAMOS -e                   # print virtual environment directory"
-    echo "    $VAMOS -f                   # find playground root directory"
     echo "    $VAMOS -g <tag> <path>      # curl from github"
     echo "    $VAMOS -i                   # install $VAMOS stuff"
     echo "    $VAMOS -p                   # print virtual environment dir path"
