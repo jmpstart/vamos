@@ -78,6 +78,7 @@ if [ "$*" = "" ] || [ "$*" == "-k" ] || [ "$*" == "-s" ]; then
     #}
 
     alias vamos="source /usr/local/bin/vamos"
+    alias wd="source /usr/local/bin/vamos -w"
 
         # install $_PYDIR/vamos
 
