@@ -321,14 +321,10 @@ fi
 if [ "$*" == "---install" ]; then
     _OK=1
     if [ -f ./_vamos ]; then
-        cp ./_vamos /usr/local/bin/vamos 2>/dev/null || _OK=0  # first trial
-
-        if [ "$_OK" == 0 ]; then   # if first trial did not work we use sudo
-            printf $_YELLOW
-            echo 'installing `vamos` in /usr/local/bin ...'
-            printf $_NORMAL
-            sudo cp ./_vamos /usr/local/bin/vamos || _OK=0
-        fi
+        printf $_YELLOW
+        echo 'installing `vamos` in /usr/local/bin ...'
+        printf $_NORMAL
+        sudo cp ./_vamos /usr/local/bin/vamos || _OK=0
 
         if [ "$_OK" == 0 ]; then
             echo '~vamos ---install: cannot copy ./_vamos to /usr/local/bin/vamos'
@@ -346,14 +342,10 @@ fi
 if [ "$*" == "---uninstall" ]; then
     _OK=1
     if [ -f /usr/local/bin/vamos ]; then
-        rm /usr/local/bin/vamos 2>/dev/null || _OK=0   # first trial
-
-        if [ "$_OK" == 0 ]; then   # if first trial did not work we use sudo
-            printf $_YELLOW
-            echo 'removing `vamos` from /usr/local/bin ...'
-            printf $_NORMAL
-            sudo rm /usr/local/bin/vamos || _OK=0
-        fi
+        printf $_YELLOW
+        echo 'removing `vamos` from /usr/local/bin ...'
+        printf $_NORMAL
+        sudo rm /usr/local/bin/vamos || _OK=0
 
         if [ "$_OK" == 0 ]; then
             echo '~vamos ---uninstall: cannot remove /usr/local/bin/vamos'
