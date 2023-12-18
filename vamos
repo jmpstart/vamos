@@ -93,6 +93,7 @@ if [ "$*" == "---help" ]; then
     echo "    $VAMOS --gurl <tag> <path>  # convert github tag to github raw URL"
     echo "    $VAMOS --gtag <url>         # convert github URL to github tag"
     echo "    $VAMOS --version            # print version"
+    echo "    $VAMOS --prompt             # set vamos standard prompt"
     echo ""
     $APP -@G "curl from  github:"
     echo "    $VAMOS --curl <tag> <path>  # curl from github"
@@ -354,6 +355,23 @@ if [ "$1" == "-w" ]; then
     unset _vENV;  unset _ERR
     unset _VAMOS_VERSION  # cleanup, since we might run in sourced mode
     unset _VAMOS     # cleanup, since we might run in sourced mode
+    return 0 2>/dev/null || exit 0  # safe return/exit
+fi
+
+#===============================================================================
+# set prompt (according to vamos standard)
+#===============================================================================
+
+if [ "$*" == "--prompt" ]; then
+    (return 0 2>/dev/null) && _SOURCED=1 || _SOURCED=0  # determine _SOURCED
+
+    if [ "$_SOURCED" == 0 ]; then
+        bash $_APP ---unsourced '--prompt'
+    else
+        export PS1="\[\e[35m\]\W\[\e[m\] $ "
+    fi
+
+    unset _SOURCED
     return 0 2>/dev/null || exit 0  # safe return/exit
 fi
 
