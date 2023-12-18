@@ -1026,7 +1026,9 @@ if [ "$*" == "-u" ] || [ "$*" == "--uninstall" ]; then
     bash $APP ---uninstall || ERR=1
 
     if [ "$ERR" == 0 ]; then
-        $ECHO -@G "$APP (version $VERSION) succesfully uninstalled"
+        printf $GREEN
+        echo "$VAMOS (version $VERSION) succesfully uninstalled"
+        printf $NORMAL
     fi
     exit 0
 fi
