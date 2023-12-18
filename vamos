@@ -4,7 +4,7 @@
 # remarks: this script is intended to be `sourced`!
 # => thus do not use `exit` in this script
 
-_VAMOS_VERSION=0.1.4
+_VAMOS_VERSION=0.1.5
 _VAMOS=vamos
 _APP=`which $_VAMOS`
 
@@ -363,32 +363,38 @@ fi
 # install in /usr/local/bin
 #===============================================================================
 
-if [ "$*" == "-!" ] || [ "$*" == "!k" ] || [ "$*" == "!s" ]; then
+if [ "$*" == "-!" ] || [ "$*" == "-k!" ] || [ "$*" == "-s!" ]; then
+    _SRC='./~vamos'
     (return 0 2>/dev/null) && _SOURCED=1 || _SOURCED=0  # determine _SOURCED
 
     if [ "$_SOURCED" == 0 ]; then
-        bash $_APP ---unsourced $*
-    elif [ "$*" == "-!k" ]; then
-        bash $_APP ---!k
-    elif [ "$*" == "-!s" ]; then
-        bash $_APP ---!s
+        bash $_SRC ---unsourced $*
+    elif [ "$*" == "-k!" ]; then
+        bash $_SRC ---k! $_SRC
+    elif [ "$*" == "-s!" ]; then
+        bash $_SRC ---s! $_SRC
     else
-        bash $_APP ---!
+        bash $_SRC ---! $_SRC
     fi
 
-        # check system requirements
-
-    bash $_APP --check
-        
         # define aliases `vamos` and `wd`
 
     alias vamos="source /usr/local/bin/vamos"
     alias wd="source /usr/local/bin/vamos -w"
 
+        # check system requirements
+
+    bash $_VAMOS --check
+
+        # perform verification of the installation
+
+    bash $_VAMOS ---verify
+
     unset _SOURCED
     unset _VAMOS_VERSION  # cleanup, since we might run in sourced mode
     unset _VAMOS     # cleanup, since we might run in sourced mode
     unset _APP
+    unset _SRC
     return 0 2>/dev/null || exit 0  # safe return/exit
 fi
 
@@ -516,6 +522,7 @@ unset _SOURCED
 
 APP=$_APP
 VERSION=$_VAMOS_VERSION
+VAMOS=$_VAMOS
 
 ECHO="bash $APP"
 
@@ -607,17 +614,15 @@ fi
 
 #===============================================================================
 # check system OS requirements
-# - vamos --check-python
-# - vamos --check-pip
-# - vamos --check-venv
 #===============================================================================
 
 if [ "$*" == '--check' ]; then
     bash $APP -@C 'checking system requirements ...'
     ERR=0
-    bash $APP '--check-python' || ERR=1
-    bash $APP '--check-pip' || ERR=1
-    bash $APP '--check-venv' || ERR=1
+    bash $APP '---check-vamos' || ERR=1
+    bash $APP '---check-python' || ERR=1
+    bash $APP '---check-pip' || ERR=1
+    bash $APP '---check-venv' || ERR=1
 
     if [ "$ERR" != 0 ]; then
         $ECHO -@r "error: failing system requirements"
@@ -630,10 +635,30 @@ if [ "$*" == '--check' ]; then
 fi
 
 #===============================================================================
+# check vamos availability
+#===============================================================================
+
+if [ "$*" == '---check-vamos' ]; then
+    ERR=0
+
+    if [ "$ERR" == 0 ]; then
+        printf '  '
+        $ECHO -@g 'OK'
+        $ECHO -@N ": playground managing tool (vamos)"
+        exit 0
+    else
+        printf '  '
+        $ECHO -@r 'FAIL'
+        $ECHO -@N ": playground managing tool (vamos) not available"
+        exit 1
+    fi
+fi
+
+#===============================================================================
 # check Python version
 #===============================================================================
 
-if [ "$*" == '--check-python' ]; then
+if [ "$*" == '---check-python' ]; then
     PYVERS=`python3 --version`
     OK=`echo $PYVERS | grep 'Python 3.1'`
 
@@ -654,7 +679,7 @@ fi
 # check pip availability
 #===============================================================================
 
-if [ "$*" == '--check-pip' ]; then
+if [ "$*" == '---check-pip' ]; then
     ERR=0
     pip --version >/dev/null 2>/dev/null || ERR=1
 
@@ -675,9 +700,9 @@ fi
 # check venv availability
 #===============================================================================
 
-if [ "$*" == '--check-venv' ]; then
+if [ "$*" == '---check-venv' ]; then
     ERR=0
-    python3 -m venvi -h >/dev/null 2>/dev/null || ERR=1
+    python3 -m venv -h >/dev/null 2>/dev/null || ERR=1
 
     if [ "$ERR" == 0 ]; then
         printf '  '
@@ -714,76 +739,36 @@ fi
 # install ./vamos as /usr/local/bin/vamos
 #===============================================================================
 
-if [ "$*" == "---!" ] || [ "$*" == "---!k" ] \
-                      || [ "$*" == "---!s" ] || [ "$*" == "---!ks" ]; then
+if [ "$1" == "---!" ] || [ "$1" == "---k!" ] || [ "$1" == "---s!" ]; then
     BIN=/usr/local/bin
     TARGET=$BIN/vamos
-    TEMPCOPY=~vamos
+    SRC=$2
+    LOG="bash $SRC"
+    ERR=0
 
-    if [ "$*" != "---!s"] && [ "$*" != "---!ks"]; then
-        $ECHO -@C "installing vamos in $BIN ..."
-    fi
-
-    GITRAW=https://raw.githubusercontent.com
-    URL=$GITRAW/$_REPO/main/vamos
-
-    if [ "$*" != "---!s"] && [ "$*" != "---!ks"]; then
-        $ECHO -@C "downloading $VAMOS ..."
-    fi
-
-       # actual installation
-
-    if [ "$*" != "---!s"] && [ "$*" != "---!ks"]; then
-        $ECHO -@Y "curl $URL >$TEMPCOPY"
-    fi
-
-    if [ "$*" != "---!s" ] && [ "$*" != "---!ks" ]; then
-        curl $URL >$TARGET || ERR=1
-    else
-        curl -s $URL >$TARGET || ERR=1
-    fi
-
-        # make executable
-
-    if [ "$ERR" == 0 ]; then
-        chmod +x $TARGET || ERR=1
+    if [ "$1" != "---s!" ]; then
+        $LOG -@C "installing vamos in $BIN ..."
     fi
 
         # install in /usr/local/bin
 
     if [ "$ERR" == 0 ]; then
-        bash $TEMPCOPY ---install $TEMPCOPY  # copy ./~vamos to /usr/local/bin
-    fi
-
-        # verification
-
-    if [ "$ERR" == 0 ]; then
-        _VERIFY=`bash $TARGET --version`
-        _MORE='(check with `vamos -?`)'
-
-        if [ "$_VERIFY" == "$_VERSION" ]; then
-            printf $_GREEN
-            echo "vamos (version $_VERSION) successfully installed "$_MORE
-            printf $_NORMAL
-
+        if [ "$1" == "---s!" ]; then
+            bash $SRC ---install-s $SRC $TARGET || ERR=1
         else
-            printf $_RED
-            echo 'error: final check for vamos installation failed'
-            echo 'expected `vamos --version` to return '"$_VERSION"
-            printf $_NORMAL
-            ERR=1
+            bash $SRC ---install $SRC $TARGET || ERR=1
         fi
-
-        unset _VERIFY
-        unset _MORE
     fi
 
         # remove temporary files
 
-    if [ "$*" != "---!k" ] && [ "$*" != "---!ks" ]; then
-        $ECHO -@C removing './vamos ...'
-        #rm $TARGET
+    if [ "$1" != "---k!" ]; then
+        if [ "$1" != "---s!" ]; then
+            $LOG -@C removing "$SRC ..."
+        fi
+        rm $SRC
     fi
+    exit 0
 fi
 
 #===============================================================================
@@ -1015,26 +1000,12 @@ fi
 #===============================================================================
 
 if [ "$*" == "-u" ] || [ "$*" == "--uninstall" ]; then
-    #URL=https://raw.githubusercontent.com/ihux/vamos/main/install
-    #curl -s $URL >~vamos; . ~vamos -u
-    #unset URL
-
-    _APP=`which $APP`
     ERR=0
-
-    if [ -f ./~vamos ]; then
-        rm ./~vamos 2>/dev/null || ERR=1
-    fi
-
-    #rm $_APP || ERR=2
-    bash $_APP ---uninstall
+    bash $APP ---uninstall || ERR=1
 
     if [ "$ERR" == 0 ]; then
-        printf $GREEN
-        echo "$APP (version $VERSION) succesfully uninstalled"
-        printf $NORMAL
+        $ECHO -@G "$APP (version $VERSION) succesfully uninstalled"
     fi
-
     exit 0
 fi
 
@@ -1049,23 +1020,37 @@ fi
 
 #===============================================================================
 # install helper: copy ./vamos to /usr/local/bin/vamos and chmod +x
+# bash install ---install ./~vamos /usr/local/bin/vamos
 #===============================================================================
 
-if [ "$*" == "---install" ]; then
-    _OK=1
-    shift;  TEMPCOPY=$1
-    if [ -f $TEMPCOPY ]; then
-        printf $_YELLOW
-        echo 'installing `vamos` in /usr/local/bin ...'
-        printf $_NORMAL
-        sudo cp $TEMPCOPY /usr/local/bin/vamos || _OK=0
+if [ "$1" == "---install" ] || [ "$1" == "---install-s" ]; then
+    ERR=0;
+    LOG='bash ~vamos'
+    SRC=$2;  TARGET=$3
 
-        if [ "$_OK" == 0 ]; then
-            echo "$TEMPCOPY ---install: cannot copy $TEMPCOPY to /usr/local/bin/vamos"
+    if [ "$SRC" == "" ] || [ "$TARGET" == "" ]; then
+        $LOG -@R "bad input: ~vamos $1 $2 $3"
+        exit 1
+    fi
+
+    if [ -f $SRC ]; then
+        #$LOG -@C "installing $SRC as $TARGET ..."
+        $LOG -@Y "sudo cp $SRC $TARGET"
+        sudo cp $SRC $TARGET || ERR=1
+
+        if [ "$ERR" == 0 ]; then
+            if [ "$1" != "---install-s" ]; then
+                $LOG -@Y "sudo chmod +x $TARGET"
+            fi
+            sudo chmod +x $TARGET || ERR=1
+        fi
+
+        if [ "ERR" == 0 ]; then
+            $LOG -@R "$SRC ---install: cannot install $SRC as $TARGET"
             exit 1
         fi
     else
-        echo "$TEMPCOPY ---install: no file $TEMPCOPY"
+        $LOG -@R "$SRC $1: no file $SRC"
         exit 1
     fi
     exit 0
@@ -1089,6 +1074,24 @@ if [ "$*" == "---uninstall" ]; then
         exit 1
     fi
     exit 0
+fi
+
+#===============================================================================
+# verification
+#===============================================================================
+
+if [ "$1" == "---verify" ]; then
+    VERIFY=`bash $VAMOS --version`
+
+    if [ "$VERIFY" == "$VERSION" ]; then
+        MORE='(check with `vamos -?`)'
+        $ECHO -@G "vamos (version $VERSION) successfully installed "$MORE
+        exit 0
+    else
+        $ECHO -@R 'error: final check for vamos installation failed'
+        echo 'expected `vamos --version` to return '"$VERSION"
+        exit 1
+    fi
 fi
 
 #===============================================================================
