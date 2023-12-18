@@ -5,14 +5,21 @@
 # Curl Installation Formula
 
 In a BASH shell with installed `git`, `curl` and `python3` execute the following
-one-liner to quick install `vamos`
+one-liner to quick install `vamos`.
 
 ```
   curl -s https://raw.githubusercontent.com/jmpstart/vamos/main/install >~vamos; source ~vamos -s
 ```
 
-and check for a successful installation message, otherwise follow the troublehooting
-in the appendix.
+When you are prompted for your superuser password type the password and check for a successful installation message.
+
+```
+    installing `vamos` in /usr/local/bin ...
+    Password:
+    vamos (version 0.1.4) successfully installed (check with `vamos -?`)
+```
+
+Otherwise follow the troublehooting in the appendix.
 
 --------------------------------------------------------------------------------
 
