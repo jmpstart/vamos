@@ -37,7 +37,7 @@
 # or:
 #    $ curl https://raw.githubusercontent.com/ihux/vamos/main/install >~vamos; . ~vamos
 
-_VERSION='0.1.3'
+_VERSION='0.1.4'
 _REPO=jmpstart/vamos
 
 # ANSI color code sequence
@@ -296,6 +296,42 @@ if [ "$*" = "-u" ] || [ "$*" = "-us" ] || [ "$*" = "-uk" ]; then
     unset _TARGET
     unset _ERR
     unset _CHECK
+    _OK=1
+fi
+
+#===============================================================================
+# install helper: copy ./vamos to /usr/local/bin/vamos and chmod +x
+#===============================================================================
+
+if [ "$*" == "---install" ]; then
+    _OK=1
+    if [ -f ./vamos ]; then
+        echo 'installing `vamos` in /usr/local/bin ...'
+        sudo cp ./vamos /usr/local/bin/vamos || _OK=0
+        if [ "$_OK" == 0 ]; then
+            echo '~vamos ---install: cannot copy ./vamos to /usr/local/bin/vamos'
+        fi
+    else
+        echo '~vamos ---install: no file ./vamos'
+    fi
+    _OK=1
+fi
+
+#===============================================================================
+# uninstall helper: remove /usr/local/bin/vamos
+#===============================================================================
+
+if [ "$*" == "---uninstall" ]; then
+    _OK=1
+    if [ -f /usr/local/bin/vamos ]; then
+        echo 'removing `vamos` from /usr/local/bin ...'
+        sudo rm /usr/local/bin/vamos || _OK=0
+        if [ "$_OK" == 0 ]; then
+            echo '~vamos ---uninstall: cannot remove /usr/local/bin/vamos'
+        fi
+    else
+        echo '~vamos ---uninstall: no file /usr/local/bin/vamos'
+    fi
     _OK=1
 fi
 
