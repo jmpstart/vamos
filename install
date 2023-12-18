@@ -171,7 +171,7 @@ if [ "$*" = "-i" ] || [ "$*" = "-is" ]; then
 
         _GITRAW=https://raw.githubusercontent.com
         _URL=$_GITRAW/$_REPO/main/vamos
-        _TARGET=$_PYDIR/vamos
+        _TARGET=$_PYDIR/_vamos
 
         if [ "$*" != "-is" ]; then
             printf $_YELLOW
@@ -209,7 +209,7 @@ if [ "$*" = "-i" ] || [ "$*" = "-is" ]; then
         # verification
 
     if [ "$_ERR" == 0 ]; then
-        _VERIFY=`vamos --version`
+        _VERIFY=`bash $_TARGET --version`
         _MORE='(check with `vamos -?`)'
 
         if [ "$_VERIFY" == "$_VERSION" ]; then
@@ -231,7 +231,7 @@ if [ "$*" = "-i" ] || [ "$*" = "-is" ]; then
 
         # install in /usr/local/bin
 
-    bash ~vamos ---install   # copy to /usr/local/bin
+    bash ~vamos ---install   # copy ./_vamos to /usr/local/bin
     #rm $_TARGET
 
     unset _PYDIR
@@ -313,14 +313,14 @@ fi
 
 if [ "$*" == "---install" ]; then
     _OK=1
-    if [ -f ./vamos ]; then
+    if [ -f ./_vamos ]; then
         echo 'installing `vamos` in /usr/local/bin ...'
-        sudo cp ./vamos /usr/local/bin/vamos || _OK=0
+        sudo cp ./_vamos /usr/local/bin/vamos || _OK=0
         if [ "$_OK" == 0 ]; then
-            echo '~vamos ---install: cannot copy ./vamos to /usr/local/bin/vamos'
+            echo '~vamos ---install: cannot copy ./_vamos to /usr/local/bin/vamos'
         fi
     else
-        echo '~vamos ---install: no file ./vamos'
+        echo '~vamos ---install: no file ./_vamos'
     fi
     _OK=1
 fi
