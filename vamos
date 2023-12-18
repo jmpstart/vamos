@@ -855,9 +855,16 @@ fi
 #===============================================================================
 
 if [ "$*" == "---uninstall" ]; then
+    OK=1
     if [ -f /usr/local/bin/vamos ]; then
-        echo 'removing `vamos` from /usr/local/bin ...'
-        sudo rm /usr/local/bin/vamos && exit 0
+        rm /usr/local/bin/vamos 2>/dev/null || OK=0  # 1st trial
+
+        if [ "$OK" == 0 ]; then  # if 1st trial did not work we use sudo
+            printf $YELLOW
+            echo 'removing `vamos` from /usr/local/bin ...'
+            printf $NORMAL
+            sudo rm /usr/local/bin/vamos && exit 0
+        fi
 
         echo "$VAMOS ---uninstall: cannot remove /usr/local/bin/vamos"
         exit 1

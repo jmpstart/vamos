@@ -48,7 +48,7 @@ _BLUE='\x1b[34m'
 _YELLOW='\x1b[33m'
 _MAGENTA='\x1b[35m'
 _CYAN='\x1b[36m'
-_NEUTRAL='\x1b[0m'
+_NORMAL='\x1b[0m'
 
 _OK=0
 
@@ -156,7 +156,7 @@ if [ "$*" == "-i" ] || [ "$*" == "-is" ] \
         echo 'error `~vamos -i`: did not find executable python3'
         echo '- focus first on a working python3 installation'
         echo '- check working python3 installation with `$ python3 --version`'
-        printf $_NEUTRAL
+        printf $_NORMAL
         _ERR=1
     fi
 
@@ -166,7 +166,7 @@ if [ "$*" == "-i" ] || [ "$*" == "-is" ] \
         if [ "$*" != "-is" ] && [ "$*" != "-isk" ]; then
             printf $_CYAN
             echo "installing vamos in $_PYDIR ..."
-            printf $_NEUTRAL
+            printf $_NORMAL
         fi
 
         _GITRAW=https://raw.githubusercontent.com
@@ -176,7 +176,7 @@ if [ "$*" == "-i" ] || [ "$*" == "-is" ] \
         if [ "$*" != "-is" ] && [ "$*" != "-isk" ]; then
             printf $_YELLOW
             echo "installing vamos in $_PYDIR ..."
-            printf $_NEUTRAL
+            printf $_NORMAL
         fi
 
            # actual installation
@@ -184,7 +184,7 @@ if [ "$*" == "-i" ] || [ "$*" == "-is" ] \
         if [ "$*" != "-is" ] && [ "$*" != "-isk" ]; then
             printf $_YELLOW
             echo "curl $_URL >$_TARGET"
-            printf $_NEUTRAL
+            printf $_NORMAL
         fi
 
         if [ "$*" != "-is" ] && [ "$*" != "-isk" ]; then
@@ -200,10 +200,16 @@ if [ "$*" == "-i" ] || [ "$*" == "-is" ] \
         if [ "$*" != "-is" ] && [ "$*" != "-isk" ]; then
             printf $_YELLOW
             echo "chmod +x $_TARGET"
-            printf $_NEUTRAL
+            printf $_NORMAL
         fi
 
         chmod +x $_TARGET || _ERR=1
+    fi
+
+        # install in /usr/local/bin
+
+    if [ "$_ERR" == 0 ]; then
+        bash ~vamos ---install   # copy ./_vamos to /usr/local/bin
     fi
 
         # verification
@@ -215,13 +221,13 @@ if [ "$*" == "-i" ] || [ "$*" == "-is" ] \
         if [ "$_VERIFY" == "$_VERSION" ]; then
             printf $_GREEN
             echo "vamos (version $_VERSION) successfully installed "$_MORE
-            printf $_NEUTRAL
+            printf $_NORMAL
 
         else
             printf $_RED
             echo 'error: final check for vamos installation failed'
             echo 'expected `vamos --version` to return '"$_VERSION"
-            printf $_NEUTRAL
+            printf $_NORMAL
             _ERR=1
         fi
 
@@ -229,11 +235,7 @@ if [ "$*" == "-i" ] || [ "$*" == "-is" ] \
         unset _MORE
     fi
 
-        # install in /usr/local/bin
-
-    if [ "$_ERR" == 0 ]; then
-        bash ~vamos ---install   # copy ./_vamos to /usr/local/bin
-    fi
+        # remove temporary files
 
     if [ "$*" != "-ik" ] && [ "$*" != "-isk" ]; then
         rm $_TARGET
@@ -263,7 +265,7 @@ if [ "$*" = "-u" ] || [ "$*" = "-us" ] || [ "$*" = "-uk" ]; then
         echo 'error `~vamos -u`: unable to identify executable vamos installation'
         echo '- script vamos expected to be in system python3 directory'
         echo '- try manual delete of $PYDIR/vamos script'
-        printf $_NEUTRAL
+        printf $_NORMAL
         _ERR=1
     fi
 
@@ -273,14 +275,14 @@ if [ "$*" = "-u" ] || [ "$*" = "-us" ] || [ "$*" = "-uk" ]; then
         if [ "$*" != "-us" ]; then
             printf $_CYAN
             echo "uninstalling $_TARGET ..."
-            printf $_NEUTRAL
+            printf $_NORMAL
         fi
 
            # actual uninstallation
 
         printf $_YELLOW
         echo "rm $_TARGET" || _ERR=1
-        printf $_NEUTRAL
+        printf $_NORMAL
 
         #rm  $_TARGET
         bash ~vamos ---uninstall
@@ -291,12 +293,12 @@ if [ "$*" = "-u" ] || [ "$*" = "-us" ] || [ "$*" = "-uk" ]; then
             printf $_RED
             echo "error ~vamos -u: uninstallation of vamos failed" || _ERR=1
             echo '=> consider manual delete of $PYBIN/vamos'
-            printf $_NEUTRAL
+            printf $_NORMAL
         else
             if [ "$*" != "-us" ]; then
                 printf $_GREEN
                 echo "successful removal of $_TARGET"
-                printf $_NEUTRAL
+                printf $_NORMAL
             fi
         fi
     fi
@@ -319,8 +321,15 @@ fi
 if [ "$*" == "---install" ]; then
     _OK=1
     if [ -f ./_vamos ]; then
-        echo 'installing `vamos` in /usr/local/bin ...'
-        sudo cp ./_vamos /usr/local/bin/vamos || _OK=0
+        cp ./_vamos /usr/local/bin/vamos 2>/dev/null || _OK=0  # first trial
+
+        if [ "$_OK" == 0 ]; then   # if first trial did not work we use sudo
+            fprintf $_YELLOW
+            echo 'installing `vamos` in /usr/local/bin ...'
+            fprintf $_NORMAL
+            sudo cp ./_vamos /usr/local/bin/vamos || _OK=0
+        fi
+
         if [ "$_OK" == 0 ]; then
             echo '~vamos ---install: cannot copy ./_vamos to /usr/local/bin/vamos'
         fi
@@ -337,8 +346,15 @@ fi
 if [ "$*" == "---uninstall" ]; then
     _OK=1
     if [ -f /usr/local/bin/vamos ]; then
-        echo 'removing `vamos` from /usr/local/bin ...'
-        sudo rm /usr/local/bin/vamos || _OK=0
+        rm /usr/local/bin/vamos 2>/dev/null || _OK=0   # first trial
+
+        if [ "$_OK" == 0 ]; then   # if first trial did not work we use sudo
+            fprintf $_YELLOW
+            echo 'removing `vamos` from /usr/local/bin ...'
+            fprintf $_NORMAL
+            sudo rm /usr/local/bin/vamos || _OK=0
+        fi
+
         if [ "$_OK" == 0 ]; then
             echo '~vamos ---uninstall: cannot remove /usr/local/bin/vamos'
         fi
@@ -357,7 +373,7 @@ fi
 if [ $_OK == 0 ]; then
     printf $_RED
     echo "error - bad calling syntax: ~vamos $*"
-    printf $_NEUTRAL
+    printf $_NORMAL
     bash ~vamos -?
 fi
 
@@ -371,4 +387,4 @@ unset _BLUE
 unset _YELLOW
 unset _MAGENTA
 unset _CYAN
-unset _NEUTRAL
+unset _NORMAL
