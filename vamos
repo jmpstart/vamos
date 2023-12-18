@@ -619,10 +619,11 @@ fi
 if [ "$*" == '--check' ]; then
     bash $APP -@C 'checking system requirements ...'
     ERR=0
-    bash $APP '---check-vamos' || ERR=1
+    bash $APP '---check-vamos'  || ERR=1
+    bash $APP '---check-git'    || ERR=1
     bash $APP '---check-python' || ERR=1
-    bash $APP '---check-pip' || ERR=1
-    bash $APP '---check-venv' || ERR=1
+    bash $APP '---check-pip'    || ERR=1
+    bash $APP '---check-venv'   || ERR=1
 
     if [ "$ERR" != 0 ]; then
         $ECHO -@r "error: failing system requirements"
@@ -650,6 +651,27 @@ if [ "$*" == '---check-vamos' ]; then
         printf '  '
         $ECHO -@r 'FAIL'
         $ECHO -@N ": playground managing tool (vamos) not available"
+        exit 1
+    fi
+fi
+
+#===============================================================================
+# check git availability
+#===============================================================================
+
+if [ "$*" == '---check-git' ]; then
+    ERR=0
+    git --version >/dev/null 2>/dev/null || ERR=1
+
+    if [ "$ERR" == 0 ]; then
+        printf '  '
+        $ECHO -@g 'OK'
+        $ECHO -@N ": Git version managing tool (git)"
+        exit 0
+    else
+        printf '  '
+        $ECHO -@r 'FAIL'
+        $ECHO -@N ": Git version managing tool (git) not available"
         exit 1
     fi
 fi
