@@ -234,7 +234,7 @@ if [ "$*" == "-i" ] || [ "$*" == "-is" ] \
 
         # install in /usr/local/bin
 
-    if [ "$_ERR" == 0 ]; then
+    if [ "$_ERR" == 0 ]; then 
         bash ~vamos ---install   # copy ./_vamos to /usr/local/bin
     fi
 
