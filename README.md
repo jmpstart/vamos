@@ -243,17 +243,47 @@ greater than or equal to 3.10.12.
 
 ## Step 3: Get your Python Environment Ready
 
+We need a Python version >= 3.10.0. To check the current Python version invoke:
+
 ```
-    $ python3 --version           # should be 3.10.12 or higher
-    Python 3.10.12
-    $
-    $     # install python3 pip
-    $
+    $ python3 --version           # should be 3.10.0 or higher
+    Python 3.8.2
+```
+
+If the installed Python version is less than 3.10.0 you need to upgrade Python.
+One way to do this is with the PPA repository from 
+[Deadsnake](https://zomro.com/blog/faq/299-kak-ustanovit-python-310-na-ubuntu-2004#:~:text=Install%20Python%203.10%20from%20PPA,dependencies%20to%20add%20the%20repository).
+
+```
+    $ sudo add-apt-repository ppa:deadsnakes/ppa   # add PPA repository from deadsnake
+    $ sudo apt install python3.10                  # install Python 3.10
+```
+
+After installation of Python 3.10 check the version again. It should be greater than or equal 
+to Python 3.10.0!
+
+```
+    $ python3 --version           # should be 3.10.0 or higher
+    Python 3.10.13
+```
+
+Having checked a proper Python version we make Python3.10 the standard python3 interpreter:
+
+```
+    $ which python3.10
+    /usr/bin/python3.10
+    ln -sf `which python3.10` /usr/bin/python3   # invoking python3 will now launch python3.10
+```
+
+Finally we need to have `pip`, the Python package manager, and a Python package for
+managing virtual environments.
+
+```
     $ sudo apt install --no-install-recommends python3-pip
     $ sudo apt install python3.10-venv
 ```
 
-Finally test, whether you can successfully create a virtual Python environment:
+After all we need to make sure that we can successfully create a virtual Python environment:
 
 ```
     $ python3 -m venv venv
@@ -261,7 +291,7 @@ Finally test, whether you can successfully create a virtual Python environment:
     (venv) $                      # on success you see a `(venv)` in the prompt
 ```
 
-To clean this up enter:
+If this works without errors we are all done. For completeness we cleanup the virtual environment:
 
 ```   
     (venv) $ deactivate           # deactivate virtual python environment
