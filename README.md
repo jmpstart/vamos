@@ -1,4 +1,4 @@
-![Vamos](./.vamos/image/vamos-a-la-playa.jpg)
+![Vamos](./.vamos/vamos-a-la-playa.jpg)
 
 # Curl Installation Formula
 
@@ -38,7 +38,7 @@ samples. Here's how to clone/activate such playground with a one-liner using `va
 
 Once cloned and installed on your computer the `vamos` playground is hosted in avirtual Python environment
 which is activated, whenvever ever command `. vamos` is invoked somewhere in the file tree of the playground's
-git repository. 
+git repository.
 
 
 If a user invokes command `$ vamos @jmpstart/toy-samples` the following actions are performed:
@@ -94,7 +94,7 @@ following tasks:
 
 `vamos` operates on the basis a local directory `.vamos`, containing
 blueprints and stuff to be copied to a virtual Python environment folder. Usually
-(but not mandatory) the `.vamos` directory is located next to the `.git` directory of 
+(but not mandatory) the `.vamos` directory is located next to the `.git` directory of
 a `git` repository.
 
 `vamos` is able to identify virtual Python environment directories, which have usually
@@ -102,7 +102,7 @@ names like `venv`or `.venv` (but can have any name), for which we use the generi
 symbol `$VENV` in this context. `vamos` identifies a virtual python environment
 by the fact that it contains an activation script $VENV/bin/activate.
 
-The role of `vamos` is: 
+The role of `vamos` is:
 
 1) To automatically create a non existing `$VENV` directory (called `venv`) if a `.vamos`
 directory has been found in the current directory.
@@ -112,7 +112,7 @@ of `$VENV` it is concluded, that the playground has not yet been setup.
 
 3) To activate always the `right` virtual Python environment, i.e., the environment
 with a valid `$VENV` directory found in the current directory, or the parent of the
-current directory, or else in the parent of the parent directory and so forth. 
+current directory, or else in the parent of the parent directory and so forth.
 
 
 # How Vamos is Implemented
@@ -123,7 +123,7 @@ i.e., needs to `source` activation scripts like `$ source $VENV/bin/activate`. T
 which allows the script to create/modify environment variables and to install aliases
 or shell functions in the current (BASH) process.
 
-In this sense `vamos` must be implemented either as an `alias` or a `BASH function` 
+In this sense `vamos` must be implemented either as an `alias` or a `BASH function`
 (the specific implementation detail is left open as a private implementation detail).
 Denoting `$PYDIR` as the system python3 path, a BASH script `$PYDIR/vamos` is installed
 with execution attributes in the `System Python3` binary directory.
@@ -136,14 +136,14 @@ After opening a new console/terminal running a BASH shell, running `vamos` gener
     run `source activate` or `. activate` before (consider to add to ~/.bashrc, ~/.bash_profile)
 ```
 
-Thus, we have to run one of the following two commands 
+Thus, we have to run one of the following two commands
 
 ```
     $ source vamos    # necessary to install a alias/function `vamos`
     $ . vamos         # short hand form (same as `source vamos`)
 ```
 
-in order to source `vamos`, which enables `vamos` to install an alias or a function called `vamos` 
+in order to source `vamos`, which enables `vamos` to install an alias or a function called `vamos`
 which subsequently will always source script `$PYDIR/vamos`. It is recommended to add
 one of the two commands above to the bASh startup scripts, which is `~/.bashprofile` on MacOS or
 `~/.bashrc` on Linux or Windows WSL. Notably the `vamos` installation process automatically

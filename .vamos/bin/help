@@ -1,12 +1,9 @@
 #!/bin/bash
 # hlp: local help
 
-  ec -g 'to activate playground environment'
-  echo  '  . vamos       # in playgroundroot folder'
-  echo  ''
-  ec -g 'ready to run toy utilities/samples'
-  echo  '  ec            # echo colored text'
-  echo  '  roulette      # print random roulette numbers'
-  echo  '  scan          # scan advertising BLE devices'
-  echo  ''
-  echo  'try these commands with -? or --help option to get additional help'
+  ec -g 'Utilities, coming with playground @vamos'
+  echo  '  ecco          # echo colored text'
+  echo  '  gil           # log git commit history'
+  echo  '  wd            # change working directory'
+  echo  '  casino        # print random roulette numbers'
+  ec -g 'try these commands with -? or --help option to get additional help'

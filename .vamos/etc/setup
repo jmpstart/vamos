@@ -1,0 +1,43 @@
+# ./vamos/etc/setup (playground setup script)
+
+#===============================================================================
+# step 1: install Python NumPy package
+#===============================================================================
+
+pip install numpy   # install Python package
+
+#===============================================================================
+# step 2: install vamos stuff (copy all subdirectories of
+#         .vamos directory into $VENV directory)
+#===============================================================================
+
+vamos -i            # install vamos stuff
+
+#===============================================================================
+# step 3: curl a script from github tag @jmpstart/vamos main branch path
+#         main/util/ecco and store to $VENV/bin/ecco.
+#         Note: VENV=`vamos -e` (as a relative path)
+#===============================================================================
+
+vamos -g @jmpstart/vamos main/util/ecco >`vamos -e`/bin/ecco
+chmod +x `vamos -e`/bin/ecco   # make it executable
+
+#===============================================================================
+# step 4: setup an alias which launches python script $VENV/bin/casino.py
+#         Note: VENV_PATH=`vamos -p` (as an absolute path)
+#===============================================================================
+
+alias casino="python "`vamos -p`"/bin/casino.py"
+
+#===============================================================================
+# step 5: setup an alias which runs $VENV/bin/help script
+#===============================================================================
+
+alias ?="bash "`vamos -p`"/bin/help"
+
+#===============================================================================
+# step 6: print summary with quick help info
+#===============================================================================
+
+vamos -@G 'playground @toy setup complete!'
+vamos -@G 'type ? for quick help'
