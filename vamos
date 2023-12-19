@@ -969,6 +969,7 @@ if [ "$*" == "-i" ]; then
                 if [ -f ".vamos/$DIR/$FILE" ]; then
                     echo "  install $VENV/$DIR/$FILE"
                     cp .vamos/$DIR/$FILE $VENV/$DIR
+                    chmod +x $VENV/$DIR/*
                 fi
             done
         fi
