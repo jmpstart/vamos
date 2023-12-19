@@ -974,8 +974,7 @@ if [ "$*" == "-i" ]; then
                     cp .vamos/$DIR/$FILE $VENV/$DIR
 
                     if [ "$DIR" == "bin" ]; then
-                        #@@@
-                        $ECHO -@Y "chmod +x $VENV/$DIR/$FILE"
+                        #$ECHO -@Y "chmod +x $VENV/$DIR/$FILE"
                         chmod +x $VENV/$DIR/$FILE
                     fi
                 fi
