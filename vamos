@@ -164,14 +164,17 @@ if [ "$*" == "-a" ] || [ "$*" == "-as" ] \
     else
         _vENV=`bash $_APP -p` # return virtual environment directory
 
-        if [ "$_vENV" != "" ]; then
+        if [ "$_vENV" == "" ]; then
+            deactivate 2>/dev/null
+            if [ "$*" != "-as" ] && [ "$*" != "-ans" ]; then
+                bash $_APP -@r 'error: no virtual environment directory'
+                bash $_APP -@n ' (create with: '
+                bash $_APP -@g "$_VAMOS -c"
+                bash $_APP -@N ')'
+            fi
+        else
             deactivate 2>/dev/null
             source $_vENV/bin/activate
-        elif [ "$*" != "-as" ] && [ "$*" != "-ans" ]; then
-            bash $_APP -@r 'error: no virtual environment directory'
-            bash $_APP -@n ' (create with: '
-            bash $_APP -@g "$_VAMOS -c"
-            bash $_APP -@N ')'
         fi
 
         unset _vENV
