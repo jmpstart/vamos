@@ -963,13 +963,22 @@ if [ "$*" == "-i" ]; then
 
             bash $APP -@C "installing $VENV/$DIR ..."
 
-            FILES=`ls .vamos/$DIR`
-            for FILE in $FILES
+            FOLDERS=`ls .vamos/$DIR`
+            for FOLDER in $FOLDERS
             do
-                if [ -f ".vamos/$DIR/$FILE" ]; then
-                    echo "  install $VENV/$DIR/$FILE"
-                    cp .vamos/$DIR/$FILE $VENV/$DIR
-                    chmod +x $VENV/$DIR/*
+                if [ -f ".vamos/$DIR/$FOLDER" ]; then
+                    echo "  install $VENV/$DIR/$FOLDER"
+                    cp .vamos/$DIR/$FOLDER $VENV/$DIR
+
+                    FILES=`ls .vamos/$DIR/$FOLDER`
+                    if [ "$FILES" != "" ] && [ "$FOLDER" == "bin" ]; then
+                        for FILE in $FILES
+                        do
+                            #@@@
+                            $ECHO -@Y "chmod +x $VENV/$DIR/$FILE"
+                            chmod +x $VENV/$DIR/$FILE
+                        done
+                    fi
                 fi
             done
         fi
