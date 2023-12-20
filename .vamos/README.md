@@ -453,3 +453,18 @@ To test package installation we perform the following steps:
 
 [5] Stack Overflow: using Python-poetry to publish to test.pypi.org
     https://stackoverflow.com/questions/68882603/using-python-poetry-to-publish-to-test-pypi-org
+
+
+# Roadmap
+
+* implement `vamos --upgrade` function to upgrade vamos to the latest version
+* create a pytest based test harness for BASH based vamos commands
+* installation of vamos via pip install (from PyPi)
+* use $VAMOS environment variable to define a home location of a .vamos folder
+  to store a global database. Having $VAMOS == "" redefines VAMOS=""
+* provide supported playground locations in a playground database (a list of
+  git accounts that support vamos playgrounds)
+* provide a command `vamos database ...` for elementary database management
+* provide `wd` capability like `wd -! <label>: <comment>` to enter/add a `wd`
+  database entry with a playground label
+* make `wd bd:` change to the labeled working directory
