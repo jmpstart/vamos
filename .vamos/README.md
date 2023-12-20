@@ -457,6 +457,10 @@ To test package installation we perform the following steps:
 
 # Roadmap
 
+* use .vamos/vamos directory to place scripts `venv`, `setup`, `activate` and
+  `deactivate`. Find a way for implicite sourcing of `venv/vamos/activate` and
+  `venv/vamos/deactivate` during activation/deactivation of the virtual
+  environment
 * implement `vamos --upgrade` function to upgrade vamos to the latest version
 * create a pytest based test harness for BASH based vamos commands
 * installation of vamos via pip install (from PyPi)
@@ -468,3 +472,4 @@ To test package installation we perform the following steps:
 * provide `wd` capability like `wd -! <label>: <comment>` to enter/add a `wd`
   database entry with a playground label
 * make `wd bd:` change to the labeled working directory
+* add a toy utility to display a README.md file from github
