@@ -4,7 +4,7 @@
 # remarks: this script is intended to be `sourced`!
 # => thus do not use `exit` in this script
 
-_VAMOS_VERSION=0.1.6
+_VAMOS_VERSION=0.1.7
 _VAMOS=vamos
 _APP=`which $_VAMOS`
 
@@ -160,16 +160,37 @@ if [ "$*" == "-a" ] || [ "$*" == "-as" ] \
         source $_APP -an           # activate VENV
         source $_APP -s            # startup playground
     elif [ -d venv ]; then
-        deactivate 2>/dev/null
-        source venv/bin/activate
+        if [ -f $VIRTUAL_ENV/bin/venv ]; then
+           source $VIRTUAL_ENV/bin/venv -d  # deactivate
+        else
+           deactivate 2>/dev/null
+        fi
+        if [ -f venv/bin/venv ]; then
+           source venv/bin/venv -a          # activate
+        else
+           source venv/bin/activate
+        fi
     elif [ -d .venv ]; then
-        deactivate 2>/dev/null
-        source .venv/bin/activate
+        if [ -f $VIRTUAL_ENV/bin/venv ]; then
+           source $VIRTUAL_ENV/bin/venv -d  # deactivate
+        else
+           deactivate 2>/dev/null
+        fi
+        if [ -f .venv/bin/venv ]; then
+           source .venv/bin/venv -a          # activate
+        else
+           source .venv/bin/activate
+        fi
     else
         _vENV=`bash $_APP -p` # return virtual environment directory
 
         if [ "$_vENV" == "" ]; then
-            deactivate 2>/dev/null
+		        if [ -f $VIRTUAL_ENV/bin/venv ]; then
+		           source $VIRTUAL_ENV/bin/venv -d  # deactivate
+		        else
+		           deactivate 2>/dev/null
+		        fi
+
             if [ "$*" != "-as" ] && [ "$*" != "-ans" ]; then
                 bash $_APP -@r 'error: no virtual environment directory'
                 bash $_APP -@n ' (create with: '
@@ -177,8 +198,20 @@ if [ "$*" == "-a" ] || [ "$*" == "-as" ] \
                 bash $_APP -@N ')'
             fi
         else
-            deactivate 2>/dev/null
-            source $_vENV/bin/activate
+		        if [ -f $VIRTUAL_ENV/bin/venv ]; then
+		           source $VIRTUAL_ENV/bin/venv -d  # deactivate
+		        else
+				        if [ -f $VIRTUAL_ENV/bin/venv ]; then
+				           source $VIRTUAL_ENV/bin/venv -d  # deactivate
+				        else
+				           deactivate 2>/dev/null
+				        fi
+		        fi
+		        if [ -f $_vENV/bin/venv ]; then
+		           source $_vENV/bin/venv -a          # activate
+		        else
+		           source $_vENV/bin/activate
+		        fi
         fi
 
         unset _vENV
@@ -205,7 +238,11 @@ if [ "$*" == "-d" ] || [ "$*" == "-dn" ]; then
         exit 1
     fi
 
-    deactivate 2>/dev/null
+    if [ -f $VIRTUAL_ENV/bin/venv ]; then
+       source $VIRTUAL_ENV/bin/venv -d  # deactivate
+    else
+       deactivate 2>/dev/null
+    fi
 
     if [ "$*" != "-dn" ]; then
         unset _VAMOS_VERSION  # cleanup, since we might run in sourced mode
@@ -857,8 +894,17 @@ if [ "$1" == "-c" ] || [ "$1" == "-cv" ]; then
         $ECHO -@Y "($VENV) pip install pip --upgrade >/dev/null"
     fi
 
-    deactivate 2>/dev/null
-    source $VENV/bin/activate
+    if [ -f $VIRTUAL_ENV/bin/venv ]; then
+       source $VIRTUAL_ENV/bin/venv -d  # deactivate
+    else
+       deactivate 2>/dev/null
+    fi
+
+    if [ -f $VENV/bin/venv ]; then
+       source $VENV/bin/venv -a          # activate
+    else
+       source $VENV/bin/activate
+    fi
 
     pip install pip --upgrade >/dev/null
 
@@ -1028,7 +1074,11 @@ if [ "$*" == "-t" ] || [ "$*" == "-t!" ]; then
     if [ "$1" != "-t!" ]; then  # not sure that we run in a child process
         bash $APP -t!         # run as a child process, call with -t! option
     else  # in the else part we run in a child process
-        deactivate 2>/dev/null  # deactivate in child but not parent process
+        if [ -f $VIRTUAL_ENV/bin/venv ]; then
+           source $VIRTUAL_ENV/bin/venv -d  # deactivate
+        else
+           deactivate 2>/dev/null
+        fi
         PYDIR=`which python3`
 
         if [ "$PYDIR" != "" ]; then
