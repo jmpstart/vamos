@@ -1,5 +1,7 @@
 # ToDo
 
+* call venv script in virtual environment bin directory for activation and
+  deactivation if such provided
 * move vamos to an official locatio https://github.com/vamos/install.git
 * make toy playground at @vamos/toy
 * autocheck if vamos is running in a sourced mode, otherwise
