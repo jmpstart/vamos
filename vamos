@@ -1214,6 +1214,8 @@ fi
 
 if [ "$1" == "--update" ]; then
   _URL=https://raw.githubusercontent.com/jmpstart/vamos/main/vamos
+  $ECHO -@g 'updating vamos ...'
+  $ECHO -@y "curl -s $_URL >~vamos; . ~vamos -!"
   curl -s $_URL >~vamos; . ~vamos -!
   exit 0
 fi
