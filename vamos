@@ -4,7 +4,7 @@
 # remarks: this script is intended to be `sourced`!
 # => thus do not use `exit` in this script
 
-_VAMOS_VERSION=0.1.7
+_VAMOS_VERSION=0.1.7a
 _VAMOS=vamos
 _APP=`which $_VAMOS`
 
@@ -97,8 +97,9 @@ if [ "$*" == "---help" ]; then
     echo "    $VAMOS --check              # check OS requirements"
     echo "    $VAMOS --gurl <tag> <path>  # convert github tag to github raw URL"
     echo "    $VAMOS --gtag <url>         # convert github URL to github tag"
-    echo "    $VAMOS --version            # print version"
     echo "    $VAMOS --prompt             # set vamos standard prompt"
+    echo "    $VAMOS --version            # print version"
+    echo "    $VAMOS --update             # update vamos"
     echo ""
     $APP -@G "curl from  github:"
     echo "    $VAMOS --curl <tag> <path>  # curl from github"
@@ -1204,6 +1205,17 @@ if [ "$1" == "---unsourced" ]; then
     $ECHO -@g ". $_VAMOS; $_VAMOS $2"
     $ECHO -@n "'\n"
     exit 0
+fi
+
+#===============================================================================
+# update vamos
+# - $ vamos --update
+#===============================================================================
+
+if [ "$1" == "--update" ]; then
+  _URL=https://raw.githubusercontent.com/jmpstart/vamos/main/vamos
+  curl -s $_URL >~vamos; . ~vamos -!
+  exit 0
 fi
 
 #===============================================================================
