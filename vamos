@@ -1167,18 +1167,15 @@ fi
 #===============================================================================
 
 if [ "$*" == "---git-home" ]; then
-    if [ "$*" == "" ]; then
-        if [ -d ".git" ]; then
-            echo `pwd`
+    if [ -d ".git" ]; then
+        echo `pwd`
+    else
+        if [ "`pwd`" == "/" ]; then
+            exit 1
         else
-            if [ "`pwd`" == "/" ]; then
-                exit 1
-            else
-                cd ..
-                bash vamos ---git-home
-            fi
+            cd ..
+            bash vamos ---git-home
         fi
-        exit 0
     fi
     exit 0
 fi
