@@ -4,7 +4,7 @@
 # remarks: this script is intended to be `sourced`!
 # => thus do not use `exit` in this script
 
-_VAMOS_VERSION=0.1.8
+_VAMOS_VERSION=0.1.9
 _VAMOS=vamos
 _APP=`which $_VAMOS`
 
@@ -354,6 +354,12 @@ if [ "$1" == "-w" ]; then
         ls
         return 0
     fi
+
+    if [ "$1" == "..." ]; then
+        cd `bash $_VAMOS ---git-home`
+        return 0
+    fi
+
     #echo 'processsing' $*
 
         # step 2: change worekdir to $1 or $WORKDIR
@@ -853,6 +859,8 @@ if [ "$*" == '---wd?' ]; then
     $ECHO -@G "usage: wd ...       # change working directory / virtual environment"
     echo      "       wd <path>    # change current dir, occasionally switch venv"
     echo      "       wd .         # store working directory in WORKDIR"
+    echo      "       wd ..        # change to parent directory"
+    echo      "       wd ...       # change to git home directory"
     echo      '       wd           # change to $WORKDIR'
     echo      '       wd -?        # help'
     echo      '       wd --help    # help'
@@ -1150,6 +1158,27 @@ if [ "$1" == "---install" ] || [ "$1" == "---install-s" ]; then
     else
         $LOG -@R "$SRC $1: no file $SRC"
         exit 1
+    fi
+    exit 0
+fi
+
+#===============================================================================
+# echo git home directory: vamos ---git-home
+#===============================================================================
+
+if [ "$*" == "---git-home" ]; then
+    if [ "$*" == "" ]; then
+        if [ -d ".git" ]; then
+            echo `pwd`
+        else
+            if [ "`pwd`" == "/" ]; then
+                exit 1
+            else
+                cd ..
+                bash vamos ---git-home
+            fi
+        fi
+        exit 0
     fi
     exit 0
 fi
