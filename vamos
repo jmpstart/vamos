@@ -4,7 +4,7 @@
 # remarks: this script is intended to be `sourced`!
 # => thus do not use `exit` in this script
 
-_VAMOS_VERSION=0.1.9
+_VAMOS_VERSION=0.1.10
 _VAMOS=vamos
 _APP=`which $_VAMOS`
 
@@ -396,12 +396,15 @@ if [ "$1" == "-w" ]; then
     fi
 
         # step 5: activate/deactivate playground in parent hierarchy
+        # => this feature is not supported in this version of vamos
 
     _vENV=`bash $_APP -p`
     if [ "$_vENV" != "" ]; then
-        source $_APP -a              # activate playground
+        #source $_APP -a               # activate playground
+        echo >/dev/null
     else
-        source $_APP -d              # deactivate playground
+        #source $_APP -d               # deactivate playground
+        echo >/dev/null
     fi
 
     unset _vENV;  unset _ERR
