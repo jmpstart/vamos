@@ -4,7 +4,7 @@
 # remarks: this script is intended to be `sourced`!
 # => thus do not use `exit` in this script
 
-_VAMOS_VERSION=0.1.10
+_VAMOS_VERSION=0.1.11
 _VAMOS=vamos
 _APP=`which $_VAMOS`
 
@@ -73,7 +73,6 @@ if [ "$*" == "---help" ]; then
     echo "    $VAMOS -r                   # remove virtual Python environment"
     echo "    $VAMOS -s                   # setup playground"
     echo "    $VAMOS -u                   # uninstall $VAMOS"
-    echo "    $VAMOS -w                   # change working directory"
     echo "    $VAMOS -!                   # install as /usr/local/bin/$VAMOS"
     echo ""
     $APP -@G "print colored text:"
@@ -125,7 +124,6 @@ if [ "$*" == "" ]; then
         vamos -@n '` (dot-space-vamos)\n'
     else
         alias vamos="source $_APP"
-        alias wd="source $_APP -w"
         source $_APP -as     # activate
     fi
 
@@ -313,10 +311,10 @@ if [ "$*" == "-s" ]; then
 fi
 
 #===============================================================================
-# change working environment
+# legacy: change working environment (code is left for study)
 #===============================================================================
 
-if [ "$1" == "-w" ]; then
+if [ "$1" == "---w" ]; then
     (return 0 2>/dev/null) && _SOURCED=1 || _SOURCED=0  # determine _SOURCED
     if [ "$_SOURCED" == 0 ]; then
         bash $_APP ---unsourced "$*"
